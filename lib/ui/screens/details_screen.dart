@@ -15,6 +15,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('Exercise details')),
       body: Column(
+        mainAxisAlignment: .start,
         children: [
           Icon(Icons.upload_file_outlined, size: 200),
           Expanded(

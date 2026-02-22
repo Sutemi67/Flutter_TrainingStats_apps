@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_training_stats_apps/screens/details_screen.dart';
+import 'package:flutter/widget_previews.dart';
+
+import 'details_screen.dart';
 
 class SelectScreen extends StatelessWidget {
+  @Preview(brightness: Brightness.light)
   const SelectScreen({super.key});
 
   void _navigateToDetails(BuildContext context) {
@@ -22,10 +25,10 @@ class SelectScreen extends StatelessWidget {
               onTap: () {
                 _navigateToDetails(context);
               },
-              child: Card(
+              child: const Card(
                 elevation: 4,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0),
                   child: Text('push-ups'),
                 ),
               ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_training_stats_apps/screens/select_screen.dart';
+import 'package:flutter/widget_previews.dart';
+import 'package:flutter_training_stats_apps/ui/screens/select_screen.dart';
 
-class MainScreen extends StatelessWidget {
-  const MainScreen({super.key});
+class HomeScreen extends StatelessWidget {
+  @Preview()
+  const HomeScreen({super.key});
 
   void _navigateToSelect(BuildContext context) {
     Navigator.push(
