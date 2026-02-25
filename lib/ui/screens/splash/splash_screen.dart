@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _delayedStart() async {
     // Имитация загрузки
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 1));
 
     // ПРОВЕРКА mounted:
     // Гарантирует, что мы не попытаемся перейти на другой экран,
@@ -33,7 +33,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(
         child: Column(
-          children: [Text('Hello, champion!'), FlutterLogo(size: 128)],
+          mainAxisAlignment: .center,
+          children: [FlutterLogo(size: 128), Text('Hello, champion!')],
         ),
       ),
       backgroundColor: Theme.of(context).primaryColor,

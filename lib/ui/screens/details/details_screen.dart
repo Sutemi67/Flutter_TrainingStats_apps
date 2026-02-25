@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_training_stats_apps/domain/reps_element.dart';
+import 'package:flutter_training_stats_apps/ui/screens/details/slider_row.dart';
 
 class DetailsScreen extends StatefulWidget {
   const DetailsScreen({super.key});
@@ -8,9 +10,23 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  List<int> reps = [1, 2, 3];
+  List<RepsElement> repsArchive = [];
   bool isRegulatorsVisible = false;
   double newRepsValue = 0;
+  void addRep(double weight, int reps) {
+    if (weight != 0.0 && reps != 0) {
+      setState(() {
+        repsArchive.add(
+          RepsElement(
+            exercise: "push-aps",
+            weight: weight,
+            reps: reps,
+            day: DateTime.now(),
+          ),
+        );
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,58 +41,36 @@ class _DetailsScreenState extends State<DetailsScreen> {
               onTap: () => setState(() {
                 isRegulatorsVisible = !isRegulatorsVisible;
               }),
-              child: isRegulatorsVisible
-                  ? Column(
-                      mainAxisAlignment: .center,
-                      children: [
-                        Icon(Icons.add, size: 155),
-                        Row(
-                          children: [
-                            Text('Reps'),
-                            Icon(Icons.eighteen_mp),
-                            Expanded(
-                              child: Slider(
-                                value: newRepsValue,
-                                divisions: 10,
-                                onChanged: (double value) {
-                                  setState(() {
-                                    newRepsValue = value;
-                                  });
-                                },
-                                label: newRepsValue.toString(),
-                                min: 0,
-                                max: 10,
-                              ),
-                            ),
-                            Icon(Icons.add),
-                          ],
-                        ),
-                      ],
-                    )
-                  : Row(
-                      mainAxisAlignment: .center,
-                      children: [Icon(Icons.add, size: 55)],
-                    ),
+              child: AnimatedCrossFade(
+                firstChild: RepsInfo(addRep: addRep),
+                secondChild: Row(
+                  mainAxisAlignment: .center,
+                  children: [Icon(Icons.add, size: 55), Text('Add rep')],
+                ),
+                crossFadeState: isRegulatorsVisible ? .showFirst : .showSecond,
+                duration: Duration(milliseconds: 400),
+              ),
             ),
           ),
           Expanded(
-            child: reps.isNotEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ListView.builder(
-                      itemCount: reps.length,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: repsArchive.isEmpty
+                  ? Text('No reps of this exercise yet.')
+                  : ListView.builder(
+                      itemCount: repsArchive.length,
                       itemBuilder: (context, index) => Card(
-                        child: ListTile(title: Text('${reps[index]} reps')),
+                        child: ListTile(
+                          title: Text(
+                            '${repsArchive[index].reps} reps with ${repsArchive[index].weight} weight',
+                            textAlign: .center,
+                          ),
+                        ),
                       ),
                     ),
-                  )
-                : Text('reps are empty'),
+            ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Text('add reps'),
       ),
     );
   }

@@ -18,18 +18,10 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(colorSchemeSeed: primaryColor),
+      theme: ThemeData(colorSchemeSeed: primaryColor, brightness: .dark),
       routes: routesList,
+      debugShowCheckedModeBanner: false,
       initialRoute: AppRoutesNames.splashRoute,
-      // localizationsDelegates: const [
-      //   GlobalMaterialLocalizations.delegate,
-      //   GlobalWidgetsLocalizations.delegate,
-      //   GlobalCupertinoLocalizations.delegate,
-      // ],
-      // supportedLocales: const [
-      //   Locale('ru', 'RU'), // Русский
-      //   Locale('en', 'US'), // Английский (опционально)
-      // ],
       locale: const Locale('ru', 'RU'),
     );
   }
