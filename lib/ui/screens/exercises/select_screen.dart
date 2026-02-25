@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widget_previews.dart';
 
-import 'details_screen.dart';
+import '../details/details_screen.dart';
 
 class SelectScreen extends StatelessWidget {
   @Preview(brightness: Brightness.light)
