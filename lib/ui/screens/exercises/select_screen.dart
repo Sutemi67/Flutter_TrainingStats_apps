@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-
-import '../details/details_screen.dart';
+import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
+import 'package:flutter_training_stats_apps/domain/reps_element.dart';
+import 'package:flutter_training_stats_apps/domain/set_element.dart';
+import 'package:flutter_training_stats_apps/ui/screens/exercises/exercise_card.dart';
+import 'package:flutter_training_stats_apps/ui/screens/exercises/sets_card.dart';
 
 class SelectScreen extends StatefulWidget {
   const SelectScreen({super.key});
@@ -11,16 +14,22 @@ class SelectScreen extends StatefulWidget {
 
 class _SelectScreenState extends State<SelectScreen>
     with SingleTickerProviderStateMixin {
-  void _navigateToDetails(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (builder) => DetailsScreen()),
-    );
-  }
-
   late AnimationController _controller;
   late Animation<double> _animation;
   final animationDuration = Duration(milliseconds: 500);
+  bool isFABColumnVisible = false;
+  bool isSetCreating = false;
+  List<SetElement> setsList = List.generate(
+    3,
+    (index) => SetElement(name: 'name', exercises: []),
+  );
+  List<ExerciseElement> exerciseList = List.generate(
+    3,
+    (index) => ExerciseElement(
+      name: 'name',
+      reps: RepsElement(weight: 22.2, reps: 2, day: DateTime.now()),
+    ),
+  );
 
   @override
   void initState() {
@@ -39,6 +48,15 @@ class _SelectScreenState extends State<SelectScreen>
     super.dispose();
   }
 
+  void makeFABvisible() {
+    setState(() {
+      isFABColumnVisible = !isFABColumnVisible;
+    });
+  }
+
+  void _toggleSetCrealing() => setState(() {
+    isSetCreating = !isSetCreating;
+  });
   void _toggleFocus(bool isLeft) {
     if (isLeft) {
       _controller.reverse();
@@ -71,21 +89,11 @@ class _SelectScreenState extends State<SelectScreen>
                   borderRadius: BorderRadius.all(Radius.circular(22)),
                   color: Colors.blueAccent.withAlpha(15),
                 ),
-                child: ListView(
-                  children: List<Widget>.generate(
-                    25,
-                    (index) => InkWell(
-                      onTap: () {
-                        _navigateToDetails(context);
-                      },
-                      child: const Card(
-                        elevation: 4,
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text('push-ups'),
-                        ),
-                      ),
-                    ),
+                child: ListView.builder(
+                  itemCount: setsList.length,
+                  itemBuilder: (context, index) => SetsCardElement(
+                    exercises: setsList[index].exercises,
+                    name: setsList[index].name,
                   ),
                 ),
               ),
@@ -103,28 +111,15 @@ class _SelectScreenState extends State<SelectScreen>
                 },
                 child: Container(
                   width: screenWidth * (1 - _animation.value),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.symmetric(
-                        horizontal: BorderSide(width: 1),
-                      ),
-                      borderRadius: BorderRadius.all(Radius.circular(22)),
-                      color: Colors.redAccent.withAlpha(15),
-                    ),
-                    child: ListView(
-                      children: [
-                        InkWell(
-                          onTap: () => _navigateToDetails(context),
-                          child: const Card(
-                            elevation: 4,
-                            child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text('push-ups'),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  decoration: BoxDecoration(
+                    border: Border.symmetric(horizontal: BorderSide(width: 1)),
+                    borderRadius: BorderRadius.all(Radius.circular(22)),
+                    color: Colors.redAccent.withAlpha(15),
+                  ),
+                  child: ListView.builder(
+                    itemCount: setsList.length,
+                    itemBuilder: (context, index) =>
+                        ExerciseCardElement(exercise: exerciseList[index]),
                   ),
                 ),
               );
@@ -132,6 +127,53 @@ class _SelectScreenState extends State<SelectScreen>
           ),
         ],
       ),
+      floatingActionButton: Column(
+        mainAxisSize: .min,
+        crossAxisAlignment: .end,
+        spacing: 4,
+        children: [
+          AnimatedSlide(
+            curve: Curves.ease,
+            offset: isFABColumnVisible ? Offset(0, 0) : Offset(0, 0.3),
+            duration: animationDuration,
+            child: AnimatedOpacity(
+              curve: Curves.ease,
+              opacity: isFABColumnVisible ? 1.0 : 0,
+              duration: animationDuration,
+              child: Column(
+                spacing: 4,
+                crossAxisAlignment: .end,
+                children: [
+                  FilledButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Exercises'),
+                  ),
+                  Row(
+                    mainAxisAlignment: .end,
+                    children: [
+                      Text('data'),
+                      FilledButton.icon(
+                        onPressed: () {
+                          _toggleSetCrealing();
+                        },
+                        label: Text('Save set!'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          FloatingActionButton.extended(
+            onPressed: () => makeFABvisible(),
+            icon: const Icon(Icons.edit),
+            label: const Text('Making changes...'),
+            isExtended: isFABColumnVisible,
+          ),
+        ],
+      ),
+      floatingActionButtonLocation: .endFloat,
     );
   }
 }
