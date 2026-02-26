@@ -6,9 +6,13 @@ class SetsCardElement extends StatelessWidget {
     super.key,
     required this.exercises,
     required this.name,
+    required this.isEditingMode,
   });
   final String name;
   final List<ExerciseElement> exercises;
+  final bool isEditingMode;
+  static const animationDuration = Duration(milliseconds: 500);
+  static const curve = Curves.ease;
 
   @override
   Widget build(BuildContext context) {
@@ -18,11 +22,36 @@ class SetsCardElement extends StatelessWidget {
         elevation: 4,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisAlignment: .spaceBetween,
+          child: Column(
+            mainAxisSize: .min,
+            crossAxisAlignment: .center,
             children: [
-              Text(name),
-              IconButton(icon: Icon(Icons.edit), onPressed: () {}),
+              AnimatedScale(
+                scale: isEditingMode ? 1 : 1.5,
+                duration: animationDuration,
+                child: AnimatedSlide(
+                  curve: curve,
+                  offset: isEditingMode ? Offset(0, 0) : Offset(0, 0.7),
+                  duration: animationDuration,
+                  child: Text(name, overflow: TextOverflow.ellipsis),
+                ),
+              ),
+              AnimatedOpacity(
+                opacity: isEditingMode ? 1 : 0,
+                duration: animationDuration,
+                child: AnimatedSlide(
+                  offset: isEditingMode ? Offset(0, 0) : Offset(0, -0.3),
+                  duration: animationDuration,
+                  curve: curve,
+                  child: Row(
+                    mainAxisAlignment: .center,
+                    children: [
+                      IconButton(icon: Icon(Icons.edit), onPressed: () {}),
+                      IconButton(icon: Icon(Icons.delete), onPressed: () {}),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),

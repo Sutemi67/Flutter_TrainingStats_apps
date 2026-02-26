@@ -28,7 +28,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Exercise details')),
+      appBar: AppBar(title: Text('${widget.exercise.name} details')),
       body: Column(
         mainAxisAlignment: .start,
         children: [

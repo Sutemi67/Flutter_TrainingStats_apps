@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
-import 'package:flutter_training_stats_apps/domain/reps_element.dart';
 import 'package:flutter_training_stats_apps/domain/set_element.dart';
 import 'package:flutter_training_stats_apps/ui/screens/exercises/exercise_card.dart';
 import 'package:flutter_training_stats_apps/ui/screens/exercises/sets_card.dart';
@@ -16,20 +15,16 @@ class _SelectScreenState extends State<SelectScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  final animationDuration = Duration(milliseconds: 500);
+  static const animationDuration = Duration(milliseconds: 500);
   bool isFABColumnVisible = false;
   bool isSetCreating = false;
-  List<SetElement> setsList = List.generate(
-    3,
-    (index) => SetElement(name: 'name', exercises: []),
-  );
-  List<ExerciseElement> exerciseList = List.generate(
-    3,
-    (index) => ExerciseElement(
-      name: 'name',
-      reps: RepsElement(weight: 22.2, reps: 2, day: DateTime.now()),
-    ),
-  );
+  bool isExerciseCreating = false;
+  bool isEditingMode = false;
+  String enteringSetName = '';
+  String enteringExerciseName = '';
+
+  List<SetElement> setsList = [];
+  List<ExerciseElement> exerciseList = [];
 
   @override
   void initState() {
@@ -48,15 +43,14 @@ class _SelectScreenState extends State<SelectScreen>
     super.dispose();
   }
 
-  void makeFABvisible() {
-    setState(() {
-      isFABColumnVisible = !isFABColumnVisible;
-    });
-  }
-
-  void _toggleSetCrealing() => setState(() {
+  void _toggleSetCreating() => setState(() {
     isSetCreating = !isSetCreating;
   });
+
+  void _toggleExerciseCreating() => setState(() {
+    isExerciseCreating = !isExerciseCreating;
+  });
+
   void _toggleFocus(bool isLeft) {
     if (isLeft) {
       _controller.reverse();
@@ -92,6 +86,7 @@ class _SelectScreenState extends State<SelectScreen>
                 child: ListView.builder(
                   itemCount: setsList.length,
                   itemBuilder: (context, index) => SetsCardElement(
+                    isEditingMode: isEditingMode,
                     exercises: setsList[index].exercises,
                     name: setsList[index].name,
                   ),
@@ -117,9 +112,11 @@ class _SelectScreenState extends State<SelectScreen>
                     color: Colors.redAccent.withAlpha(15),
                   ),
                   child: ListView.builder(
-                    itemCount: setsList.length,
-                    itemBuilder: (context, index) =>
-                        ExerciseCardElement(exercise: exerciseList[index]),
+                    itemCount: exerciseList.length,
+                    itemBuilder: (context, index) => ExerciseCardElement(
+                      exercise: exerciseList[index],
+                      isEditingMode: isEditingMode,
+                    ),
                   ),
                 ),
               );
@@ -144,20 +141,117 @@ class _SelectScreenState extends State<SelectScreen>
                 spacing: 4,
                 crossAxisAlignment: .end,
                 children: [
-                  FilledButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Exercises'),
+                  FloatingActionButton.extended(
+                    heroTag: 4,
+                    onPressed: () => setState(() {
+                      isEditingMode = !isEditingMode;
+                    }),
+                    label: isEditingMode
+                        ? Text('Done with editing')
+                        : Text('Enter editing mode'),
                   ),
                   Row(
                     mainAxisAlignment: .end,
                     children: [
-                      Text('data'),
-                      FilledButton.icon(
+                      AnimatedSlide(
+                        curve: Curves.ease,
+                        offset: isExerciseCreating
+                            ? Offset(0, 0)
+                            : Offset(0.5, 0),
+                        duration: animationDuration,
+                        child: AnimatedOpacity(
+                          curve: Curves.easeOut,
+                          opacity: isExerciseCreating ? 1 : 0,
+                          duration: animationDuration,
+                          child: SizedBox(
+                            width: 200,
+                            child: TextField(
+                              onChanged: (value) {
+                                if (value.isNotEmpty) {
+                                  setState(() {
+                                    enteringExerciseName = value;
+                                  });
+                                }
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'Enter exercise name here',
+                                border: const OutlineInputBorder(),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      exerciseList.add(
+                                        ExerciseElement(
+                                          name: enteringExerciseName,
+                                        ),
+                                      );
+                                      enteringExerciseName = '';
+                                    });
+                                  },
+                                  icon: const Icon(Icons.add),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      FloatingActionButton.extended(
+                        heroTag: 1,
                         onPressed: () {
-                          _toggleSetCrealing();
+                          _toggleExerciseCreating();
                         },
-                        label: Text('Save set!'),
+                        label: isExerciseCreating
+                            ? Text('Okay')
+                            : Text('Add exercise!'),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: .end,
+                    children: [
+                      AnimatedSlide(
+                        curve: Curves.ease,
+                        offset: isSetCreating ? Offset(0, 0) : Offset(0.5, 0),
+                        duration: animationDuration,
+                        child: AnimatedOpacity(
+                          curve: Curves.easeOut,
+                          opacity: isSetCreating ? 1 : 0,
+                          duration: animationDuration,
+                          child: SizedBox(
+                            width: 200,
+                            child: TextField(
+                              onChanged: (value) {
+                                setState(() {
+                                  if (value.isNotEmpty) enteringSetName = value;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'Enter set name here',
+                                border: const OutlineInputBorder(),
+                                suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      setsList.add(
+                                        SetElement(
+                                          exercises: [],
+                                          name: enteringSetName,
+                                        ),
+                                      );
+                                      enteringExerciseName = '';
+                                    });
+                                  },
+                                  icon: const Icon(Icons.add),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      FloatingActionButton.extended(
+                        heroTag: 2,
+                        onPressed: () {
+                          _toggleSetCreating();
+                        },
+                        label: isSetCreating ? Text('Okay') : Text('Add set!'),
                       ),
                     ],
                   ),
@@ -166,9 +260,14 @@ class _SelectScreenState extends State<SelectScreen>
             ),
           ),
           FloatingActionButton.extended(
-            onPressed: () => makeFABvisible(),
+            heroTag: 3,
+            onPressed: () => setState(() {
+              isFABColumnVisible = !isFABColumnVisible;
+              isEditingMode = false;
+              isSetCreating = false;
+            }),
             icon: const Icon(Icons.edit),
-            label: const Text('Making changes...'),
+            label: const Text('Done!'),
             isExtended: isFABColumnVisible,
           ),
         ],
