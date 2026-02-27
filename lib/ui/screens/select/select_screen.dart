@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_training_stats_apps/data/database.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
 import 'package:flutter_training_stats_apps/domain/set_element.dart';
-import 'package:flutter_training_stats_apps/ui/screens/exercises/exercise_card.dart';
-import 'package:flutter_training_stats_apps/ui/screens/exercises/sets_card.dart';
+import 'package:flutter_training_stats_apps/ui/screens/select/sets_card.dart';
+
+import 'exercise_card.dart';
 
 class SelectScreen extends StatefulWidget {
   const SelectScreen({super.key, required this.db});
+
   final AppDatabase db;
+
   @override
   State<SelectScreen> createState() => _SelectScreenState();
 }
@@ -16,6 +19,7 @@ class _SelectScreenState extends State<SelectScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  late final db = widget.db;
   static const animationDuration = Duration(milliseconds: 500);
   bool isFABColumnVisible = false;
   bool isSetCreating = false;
@@ -36,6 +40,7 @@ class _SelectScreenState extends State<SelectScreen>
       begin: 0.7,
       end: 0.3,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _loadSets();
   }
 
   @override
@@ -44,6 +49,26 @@ class _SelectScreenState extends State<SelectScreen>
     super.dispose();
   }
 
+  void _loadSets() async {
+    if (setsList.isEmpty) {
+      final loadedList = await db.getAllSets();
+      print('$loadedList in init state');
+      setState(() {
+        setsList = loadedList;
+      });
+    }
+  }
+
+  // void _loadExercises() async {
+  //   if (exerciseList.isEmpty) {
+  //     final loadedList = await db.getAllExercises();
+  //     print('$loadedList in init state');
+  //     setState(() {
+  //       exerciseList = loadedList;
+  //     });
+  //   }
+  // }
+
   void _toggleSetCreating() => setState(() {
     isSetCreating = !isSetCreating;
   });
@@ -51,6 +76,12 @@ class _SelectScreenState extends State<SelectScreen>
   void _toggleExerciseCreating() => setState(() {
     isExerciseCreating = !isExerciseCreating;
   });
+
+  void _showExercisesInSet(SetElement set) {
+    setState(() {
+      exerciseList = set.exercises;
+    });
+  }
 
   void _toggleFocus(bool isLeft) {
     if (isLeft) {
@@ -90,6 +121,7 @@ class _SelectScreenState extends State<SelectScreen>
                     isEditingMode: isEditingMode,
                     exercises: setsList[index].exercises,
                     name: setsList[index].name,
+                    onClick: () => _showExercisesInSet(setsList[index]),
                   ),
                 ),
               ),
@@ -183,6 +215,7 @@ class _SelectScreenState extends State<SelectScreen>
                                       exerciseList.add(
                                         ExerciseElement(
                                           name: enteringExerciseName,
+                                          reps: [],
                                         ),
                                       );
                                       enteringExerciseName = '';
