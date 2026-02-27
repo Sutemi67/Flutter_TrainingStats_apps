@@ -143,9 +143,18 @@ class AppDatabase {
         exercises.add(ExerciseElement(name: exerciseName, reps: repsList));
       }
 
-      result.add(SetElement(name: setName, exercises: exercises));
+      result.add(SetElement(id: setId, name: setName, exercises: exercises));
     }
 
     return result;
+  }
+
+  Future<void> deleteSet(int setId) async {
+    final db = await database;
+    await db.delete(
+      'sets',
+      where: 'id = ?',
+      whereArgs: [setId],
+    );
   }
 }

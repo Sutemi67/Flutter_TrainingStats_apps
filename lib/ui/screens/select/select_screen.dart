@@ -28,6 +28,7 @@ class _SelectScreenState extends State<SelectScreen>
   String enteringSetName = '';
   String enteringExerciseName = '';
 
+  SetElement? selectedSet;
   List<SetElement> setsList = [];
   List<ExerciseElement> exerciseList = [];
 
@@ -59,16 +60,6 @@ class _SelectScreenState extends State<SelectScreen>
     }
   }
 
-  // void _loadExercises() async {
-  //   if (exerciseList.isEmpty) {
-  //     final loadedList = await db.getAllExercises();
-  //     print('$loadedList in init state');
-  //     setState(() {
-  //       exerciseList = loadedList;
-  //     });
-  //   }
-  // }
-
   void _toggleSetCreating() => setState(() {
     isSetCreating = !isSetCreating;
   });
@@ -79,7 +70,23 @@ class _SelectScreenState extends State<SelectScreen>
 
   void _showExercisesInSet(SetElement set) {
     setState(() {
+      selectedSet = set;
       exerciseList = set.exercises;
+    });
+  }
+
+  void _deleteSet(SetElement set) async {
+    final setId = set.id;
+    if (setId == null) return;
+
+    await db.deleteSet(setId);
+
+    setState(() {
+      setsList.removeWhere((element) => element.id == setId);
+      if (selectedSet?.id == setId) {
+        selectedSet = null;
+        exerciseList = [];
+      }
     });
   }
 
@@ -122,6 +129,7 @@ class _SelectScreenState extends State<SelectScreen>
                     exercises: setsList[index].exercises,
                     name: setsList[index].name,
                     onClick: () => _showExercisesInSet(setsList[index]),
+                    onDelete: () => _deleteSet(setsList[index]),
                   ),
                 ),
               ),
@@ -262,14 +270,22 @@ class _SelectScreenState extends State<SelectScreen>
                                 labelText: 'Enter set name here',
                                 border: const OutlineInputBorder(),
                                 suffixIcon: IconButton(
-                                  onPressed: () {
+                                  onPressed: () async {
+                                    final tempSet = SetElement(
+                                      exercises: [],
+                                      name: enteringSetName,
+                                    );
+                                    final newId = await widget.db.insertSet(
+                                      tempSet,
+                                    );
                                     setState(() {
-                                      final setElement = SetElement(
-                                        exercises: [],
-                                        name: enteringSetName,
+                                      setsList.add(
+                                        SetElement(
+                                          id: newId,
+                                          exercises: [],
+                                          name: enteringSetName,
+                                        ),
                                       );
-                                      setsList.add(setElement);
-                                      widget.db.insertSet(setElement);
                                     });
                                   },
                                   icon: const Icon(Icons.add),

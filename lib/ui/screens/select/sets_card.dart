@@ -8,12 +8,14 @@ class SetsCardElement extends StatefulWidget {
     required this.name,
     required this.isEditingMode,
     required this.onClick,
+    required this.onDelete,
   });
 
   final String name;
   final List<ExerciseElement> exercises;
   final bool isEditingMode;
   final Function onClick;
+  final VoidCallback onDelete;
   static const animationDuration = Duration(milliseconds: 500);
   static const curve = Curves.ease;
 
@@ -65,7 +67,10 @@ class _SetsCardElementState extends State<SetsCardElement> {
                     mainAxisAlignment: .center,
                     children: [
                       IconButton(icon: Icon(Icons.edit), onPressed: () {}),
-                      IconButton(icon: Icon(Icons.delete), onPressed: () {}),
+                      IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: widget.onDelete,
+                      ),
                     ],
                   ),
                 ),
