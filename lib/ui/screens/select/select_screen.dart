@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_training_stats_apps/data/database.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
 import 'package:flutter_training_stats_apps/domain/set_element.dart';
 import 'package:flutter_training_stats_apps/ui/screens/exercises/exercise_card.dart';
 import 'package:flutter_training_stats_apps/ui/screens/exercises/sets_card.dart';
 
 class SelectScreen extends StatefulWidget {
-  const SelectScreen({super.key});
-
+  const SelectScreen({super.key, required this.db});
+  final AppDatabase db;
   @override
   State<SelectScreen> createState() => _SelectScreenState();
 }
@@ -230,13 +231,12 @@ class _SelectScreenState extends State<SelectScreen>
                                 suffixIcon: IconButton(
                                   onPressed: () {
                                     setState(() {
-                                      setsList.add(
-                                        SetElement(
-                                          exercises: [],
-                                          name: enteringSetName,
-                                        ),
+                                      final setElement = SetElement(
+                                        exercises: [],
+                                        name: enteringSetName,
                                       );
-                                      enteringExerciseName = '';
+                                      setsList.add(setElement);
+                                      widget.db.insertSet(setElement);
                                     });
                                   },
                                   icon: const Icon(Icons.add),
