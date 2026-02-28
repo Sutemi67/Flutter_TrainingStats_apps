@@ -210,6 +210,13 @@ class _SelectScreenState extends State<SelectScreen>
                       isSetEditing: isSetEditing,
                       isGlobalEditMode: isEditingMode,
                       exercise: activeExerciseList[index],
+                      onCheckBoxClick: () {},
+                      onDelete: () {
+                        db.deleteExercise(activeExerciseList[index].id!);
+                        setState(() {
+                          activeExerciseList.removeAt(index);
+                        });
+                      },
                     ),
                   ),
                 ),
@@ -240,6 +247,7 @@ class _SelectScreenState extends State<SelectScreen>
                     onPressed: () => setState(() {
                       isEditingMode = !isEditingMode;
                       editSetIndex = -1;
+                      selectedSet = null;
                     }),
                     label: isEditingMode
                         ? Text('Done with editing')
@@ -367,6 +375,8 @@ class _SelectScreenState extends State<SelectScreen>
               isFABColumnVisible = !isFABColumnVisible;
               isEditingMode = false;
               isSetCreating = false;
+              selectedSet = null;
+              editSetIndex = -1;
             }),
             icon: const Icon(Icons.edit),
             label: const Text('Done!'),

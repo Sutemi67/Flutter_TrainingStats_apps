@@ -10,12 +10,16 @@ class ExerciseCardElement extends StatelessWidget {
     required this.isGlobalEditMode,
     required this.isInSelectedSet,
     required this.isSetEditing,
+    required this.onDelete,
+    required this.onCheckBoxClick,
   });
 
   final ExerciseElement exercise;
   final bool isGlobalEditMode;
   final bool isInSelectedSet;
   final bool isSetEditing;
+  final VoidCallback onDelete;
+  final VoidCallback onCheckBoxClick;
   static const animationDuration = Duration(milliseconds: 500);
   static const curve = Curves.ease;
 
@@ -76,7 +80,7 @@ class ExerciseCardElement extends StatelessWidget {
                         ),
                       IconButton(
                         icon: const Icon(Icons.delete),
-                        onPressed: isGlobalEditMode ? () {} : null,
+                        onPressed: isGlobalEditMode ? onDelete : null,
                       ),
                     ],
                   ),
