@@ -3,6 +3,7 @@ import 'package:flutter_training_stats_apps/data/database.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
 import 'package:flutter_training_stats_apps/domain/set_element.dart';
 import 'package:flutter_training_stats_apps/ui/screens/select/sets_card.dart';
+import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
 
 import 'exercise_card.dart';
 
@@ -25,6 +26,8 @@ class _SelectScreenState extends State<SelectScreen>
   bool isSetCreating = false;
   bool isExerciseCreating = false;
   bool isEditingMode = false;
+  bool isSetEditing = false;
+  int editSetIndex = -1;
   String enteringSetName = '';
   String enteringExerciseName = '';
 
@@ -50,6 +53,16 @@ class _SelectScreenState extends State<SelectScreen>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  bool _isInSelectedSet(int index) {
+    if (editSetIndex == -1) {
+      return false;
+    } else {
+      return setsList[editSetIndex].exercises.contains(
+        loadedExerciseList[index],
+      );
+    }
   }
 
   void _loadSets() async {
@@ -91,6 +104,22 @@ class _SelectScreenState extends State<SelectScreen>
       setState(() {
         selectedSet = null;
         activeExerciseList = loadedExerciseList;
+      });
+    }
+  }
+
+  void _onSetEdit(int index) {
+    if (editSetIndex != index) {
+      setState(() {
+        selectedSet = setsList[index];
+        editSetIndex = index;
+        isSetEditing = true;
+      });
+    } else {
+      setState(() {
+        selectedSet = null;
+        editSetIndex = -1;
+        isSetEditing = false;
       });
     }
   }
@@ -140,7 +169,7 @@ class _SelectScreenState extends State<SelectScreen>
                     vertical: BorderSide(width: 1),
                   ),
                   borderRadius: BorderRadius.all(Radius.circular(22)),
-                  color: Colors.blueAccent.withAlpha(15),
+                  color: setsMainColor,
                 ),
                 child: ListView.builder(
                   itemCount: setsList.length,
@@ -151,6 +180,7 @@ class _SelectScreenState extends State<SelectScreen>
                     name: setsList[index].name,
                     onClick: () => _onSetSelect(setsList[index]),
                     onDelete: () => _deleteSet(setsList[index]),
+                    onEdit: () => _onSetEdit(index),
                   ),
                 ),
               ),
@@ -171,13 +201,15 @@ class _SelectScreenState extends State<SelectScreen>
                   decoration: BoxDecoration(
                     border: Border.symmetric(horizontal: BorderSide(width: 1)),
                     borderRadius: BorderRadius.all(Radius.circular(22)),
-                    color: Colors.redAccent.withAlpha(15),
+                    color: exerciseMainColor,
                   ),
                   child: ListView.builder(
                     itemCount: activeExerciseList.length,
                     itemBuilder: (context, index) => ExerciseCardElement(
+                      isInSelectedSet: _isInSelectedSet(index),
+                      isSetEditing: isSetEditing,
+                      isGlobalEditMode: isEditingMode,
                       exercise: activeExerciseList[index],
-                      isEditingMode: isEditingMode,
                     ),
                   ),
                 ),
@@ -207,6 +239,7 @@ class _SelectScreenState extends State<SelectScreen>
                     heroTag: 4,
                     onPressed: () => setState(() {
                       isEditingMode = !isEditingMode;
+                      editSetIndex = -1;
                     }),
                     label: isEditingMode
                         ? Text('Done with editing')

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
+import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
 
 class SetsCardElement extends StatefulWidget {
   const SetsCardElement({
@@ -10,6 +11,7 @@ class SetsCardElement extends StatefulWidget {
     required this.onClick,
     required this.onDelete,
     required this.isActive,
+    required this.onEdit,
   });
 
   final String name;
@@ -17,6 +19,7 @@ class SetsCardElement extends StatefulWidget {
   final bool isEditingMode;
   final Function onClick;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
   final bool isActive;
   static const animationDuration = Duration(milliseconds: 500);
   static const curve = Curves.ease;
@@ -31,7 +34,7 @@ class _SetsCardElementState extends State<SetsCardElement> {
     bool isActive = widget.isActive;
     return Card(
       elevation: 4,
-      color: isActive ? const Color.fromARGB(255, 125, 131, 1) : null,
+      color: isActive ? setsSelectedColor : null,
       clipBehavior: .hardEdge,
       child: InkWell(
         onTap: () {
@@ -40,7 +43,7 @@ class _SetsCardElementState extends State<SetsCardElement> {
             isActive = !isActive;
           });
         },
-        splashColor: const Color.fromARGB(255, 125, 131, 1),
+        splashColor: setsSelectedColor,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -69,7 +72,7 @@ class _SetsCardElementState extends State<SetsCardElement> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit),
-                        onPressed: () {},
+                        onPressed: widget.isEditingMode ? widget.onEdit : null,
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),

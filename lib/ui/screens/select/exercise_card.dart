@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
 import 'package:flutter_training_stats_apps/ui/screens/details/details_screen.dart';
+import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
 
 class ExerciseCardElement extends StatelessWidget {
   const ExerciseCardElement({
     super.key,
     required this.exercise,
-    required this.isEditingMode,
+    required this.isGlobalEditMode,
+    required this.isInSelectedSet,
+    required this.isSetEditing,
   });
 
   final ExerciseElement exercise;
-  final bool isEditingMode;
+  final bool isGlobalEditMode;
+  final bool isInSelectedSet;
+  final bool isSetEditing;
   static const animationDuration = Duration(milliseconds: 500);
   static const curve = Curves.ease;
 
@@ -25,12 +30,14 @@ class ExerciseCardElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        _navigateToDetails(context);
-      },
-      child: Card(
-        elevation: 4,
+    return Card(
+      elevation: 4,
+      clipBehavior: .hardEdge,
+      child: InkWell(
+        onTap: () {
+          _navigateToDetails(context);
+        },
+        splashColor: exerciseSelectedColor,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -38,27 +45,39 @@ class ExerciseCardElement extends StatelessWidget {
             crossAxisAlignment: .center,
             children: [
               AnimatedScale(
-                scale: isEditingMode ? 1 : 1.5,
+                scale: isGlobalEditMode ? 1 : 1.5,
                 duration: animationDuration,
                 child: AnimatedSlide(
                   curve: curve,
-                  offset: isEditingMode ? Offset(0, 0) : Offset(0, 0.7),
+                  offset: isGlobalEditMode
+                      ? const Offset(0, 0)
+                      : const Offset(0, 0.7),
                   duration: animationDuration,
                   child: Text(exercise.name, overflow: TextOverflow.ellipsis),
                 ),
               ),
+
               AnimatedOpacity(
-                opacity: isEditingMode ? 1 : 0,
+                opacity: isGlobalEditMode ? 1 : 0,
                 duration: animationDuration,
                 child: AnimatedSlide(
-                  offset: isEditingMode ? Offset(0, 0) : Offset(0, -0.3),
+                  offset: isGlobalEditMode
+                      ? const Offset(0, 0)
+                      : const Offset(0, -0.3),
                   duration: animationDuration,
                   curve: curve,
                   child: Row(
                     mainAxisAlignment: .center,
                     children: [
-                      IconButton(icon: Icon(Icons.edit), onPressed: () {}),
-                      IconButton(icon: Icon(Icons.delete), onPressed: () {}),
+                      if (isSetEditing)
+                        Checkbox(
+                          value: false,
+                          onChanged: isGlobalEditMode ? (value) {} : null,
+                        ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: isGlobalEditMode ? () {} : null,
+                      ),
                     ],
                   ),
                 ),

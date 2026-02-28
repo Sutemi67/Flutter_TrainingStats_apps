@@ -31,13 +31,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: .center,
           children: [FlutterLogo(size: 128), Text('Hello, champion!')],
         ),
       ),
-      backgroundColor: Theme.of(context).primaryColor,
     );
   }
 }
