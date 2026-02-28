@@ -55,14 +55,14 @@ class _SelectScreenState extends State<SelectScreen>
     super.dispose();
   }
 
-  bool _isInSelectedSet(int index) {
-    if (editSetIndex == -1) {
+  bool _isInSelectedSet(ExerciseElement exercise) {
+    // Если не в режиме редактирования сета или у упражнения нет id — не может быть в сете
+    if (editSetIndex == -1 || exercise.id == null) {
       return false;
-    } else {
-      return setsList[editSetIndex].exercises.contains(
-        loadedExerciseList[index],
-      );
     }
+
+    // Проверяем наличие упражнения по id (не по ссылке на объект!)
+    return setsList[editSetIndex].exercises.any((e) => e.id == exercise.id);
   }
 
   void _loadSets() async {
@@ -78,7 +78,6 @@ class _SelectScreenState extends State<SelectScreen>
   void _loadExercises() async {
     if (loadedExerciseList.isEmpty) {
       final loadedList = await db.getAllExercises();
-      print(loadedList);
       setState(() {
         loadedExerciseList = loadedList;
         activeExerciseList = loadedList;
@@ -94,7 +93,18 @@ class _SelectScreenState extends State<SelectScreen>
     isExerciseCreating = !isExerciseCreating;
   });
 
+  void _toggleEditingMode() {
+    setState(() {
+      isEditingMode = !isEditingMode;
+      editSetIndex = -1;
+      selectedSet = null;
+      isSetEditing = false;
+      activeExerciseList = loadedExerciseList;
+    });
+  }
+
   void _onSetSelect(SetElement set) {
+    if (isEditingMode) return;
     if (selectedSet != set) {
       setState(() {
         selectedSet = set;
@@ -108,18 +118,20 @@ class _SelectScreenState extends State<SelectScreen>
     }
   }
 
-  void _onSetEdit(int index) {
+  void _onSetEdit(int index) async {
     if (editSetIndex != index) {
       setState(() {
         selectedSet = setsList[index];
         editSetIndex = index;
         isSetEditing = true;
+        activeExerciseList = loadedExerciseList;
       });
     } else {
       setState(() {
         selectedSet = null;
         editSetIndex = -1;
         isSetEditing = false;
+        activeExerciseList = loadedExerciseList;
       });
     }
   }
@@ -205,19 +217,44 @@ class _SelectScreenState extends State<SelectScreen>
                   ),
                   child: ListView.builder(
                     itemCount: activeExerciseList.length,
-                    itemBuilder: (context, index) => ExerciseCardElement(
-                      isInSelectedSet: _isInSelectedSet(index),
-                      isSetEditing: isSetEditing,
-                      isGlobalEditMode: isEditingMode,
-                      exercise: activeExerciseList[index],
-                      onCheckBoxClick: () {},
-                      onDelete: () {
-                        db.deleteExercise(activeExerciseList[index].id!);
-                        setState(() {
-                          activeExerciseList.removeAt(index);
-                        });
-                      },
-                    ),
+                    itemBuilder: (context, index) {
+                      final editingExercise = activeExerciseList[index];
+                      return ExerciseCardElement(
+                        isInSelectedSet: _isInSelectedSet(editingExercise),
+                        isSetEditing: isSetEditing,
+                        isGlobalEditMode: isEditingMode,
+                        exercise: activeExerciseList[index],
+                        onCheckBoxClick: (value) {
+                          if (value) {
+                            db.addExerciseToSet(
+                              setsList[editSetIndex].id!,
+                              editingExercise.id!,
+                            );
+                            setState(() {
+                              setsList[editSetIndex].exercises.add(
+                                editingExercise,
+                              );
+                            });
+                          } else {
+                            db.removeExerciseFromSet(
+                              setsList[editSetIndex].id!,
+                              editingExercise.id!,
+                            );
+                            setState(() {
+                              setsList[editSetIndex].exercises.remove(
+                                editingExercise,
+                              );
+                            });
+                          }
+                        },
+                        onDelete: () {
+                          db.deleteExercise(editingExercise.id!);
+                          setState(() {
+                            activeExerciseList.removeAt(index);
+                          });
+                        },
+                      );
+                    },
                   ),
                 ),
               );
@@ -244,11 +281,7 @@ class _SelectScreenState extends State<SelectScreen>
                 children: [
                   FloatingActionButton.extended(
                     heroTag: 4,
-                    onPressed: () => setState(() {
-                      isEditingMode = !isEditingMode;
-                      editSetIndex = -1;
-                      selectedSet = null;
-                    }),
+                    onPressed: _toggleEditingMode,
                     label: isEditingMode
                         ? Text('Done with editing')
                         : Text('Enter editing mode'),

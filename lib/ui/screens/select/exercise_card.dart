@@ -19,7 +19,7 @@ class ExerciseCardElement extends StatelessWidget {
   final bool isInSelectedSet;
   final bool isSetEditing;
   final VoidCallback onDelete;
-  final VoidCallback onCheckBoxClick;
+  final Function onCheckBoxClick;
   static const animationDuration = Duration(milliseconds: 500);
   static const curve = Curves.ease;
 
@@ -75,8 +75,10 @@ class ExerciseCardElement extends StatelessWidget {
                     children: [
                       if (isSetEditing)
                         Checkbox(
-                          value: false,
-                          onChanged: isGlobalEditMode ? (value) {} : null,
+                          value: isInSelectedSet,
+                          onChanged: isGlobalEditMode
+                              ? (value) => onCheckBoxClick(value)
+                              : null,
                         ),
                       IconButton(
                         icon: const Icon(Icons.delete),
