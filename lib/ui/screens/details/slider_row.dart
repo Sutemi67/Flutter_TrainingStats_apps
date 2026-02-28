@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
 
 class RepsInfo extends StatefulWidget {
   const RepsInfo({super.key, required this.addRep});
@@ -10,6 +11,28 @@ class RepsInfo extends StatefulWidget {
 class _RepsInfoState extends State<RepsInfo> {
   int newRepsValue = 0;
   double newWeightValue = 0;
+  Color repsSliderColor = Colors.red;
+
+  void getRepsColor() {
+    if (newRepsValue >= 0 && newRepsValue < 4) {
+      setState(() {
+        repsSliderColor = Colors.red;
+      });
+    } else if (newRepsValue >= 4 && newRepsValue < 8) {
+      setState(() {
+        repsSliderColor = Colors.yellow;
+      });
+    } else if (newRepsValue >= 8 && newRepsValue < 12) {
+      setState(() {
+        repsSliderColor = Colors.green;
+      });
+    } else {
+      setState(() {
+        repsSliderColor = Colors.grey;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -20,7 +43,7 @@ class _RepsInfoState extends State<RepsInfo> {
           onPressed: () => widget.addRep(newWeightValue, newRepsValue),
         ),
         Card(
-          surfaceTintColor: Colors.blue,
+          surfaceTintColor: setsMainColor,
           child: Row(
             crossAxisAlignment: .center,
             children: [
@@ -32,11 +55,16 @@ class _RepsInfoState extends State<RepsInfo> {
                 ),
               ),
               TextButton(
-                onPressed: () => setState(() => newWeightValue -= 0.5),
+                onPressed: () {
+                  if (newWeightValue > 0) {
+                    setState(() => newWeightValue -= 0.5);
+                  }
+                },
                 child: Text('-', style: TextStyle(fontSize: 35)),
               ),
               Expanded(
                 child: Slider(
+                  activeColor: setsSelectedColor,
                   value: newWeightValue,
                   divisions: 400,
                   onChanged: (double value) => setState(
@@ -48,14 +76,18 @@ class _RepsInfoState extends State<RepsInfo> {
                 ),
               ),
               TextButton(
-                onPressed: () => setState(() => newWeightValue += 0.5),
+                onPressed: () {
+                  if (newWeightValue < 200) {
+                    setState(() => newWeightValue += 0.5);
+                  }
+                },
                 child: Text('+', style: TextStyle(fontSize: 35)),
               ),
             ],
           ),
         ),
         Card(
-          surfaceTintColor: Colors.greenAccent,
+          surfaceTintColor: exerciseMainColor,
           child: Row(
             crossAxisAlignment: .center,
             children: [
@@ -64,16 +96,23 @@ class _RepsInfoState extends State<RepsInfo> {
                 child: SizedBox(width: 97, child: Text('Reps: $newRepsValue')),
               ),
               TextButton(
-                onPressed: () => setState(() => newRepsValue--),
+                onPressed: () {
+                  if (newRepsValue > 0) {
+                    setState(() => newRepsValue--);
+                    getRepsColor();
+                  }
+                },
                 child: Text('-', style: TextStyle(fontSize: 35)),
               ),
               Expanded(
                 child: Slider(
+                  activeColor: repsSliderColor,
                   value: newRepsValue.toDouble(),
                   divisions: 20,
                   onChanged: (double value) {
                     setState(() {
                       newRepsValue = value.toInt();
+                      getRepsColor();
                     });
                   },
                   label: newRepsValue.toString(),
@@ -82,7 +121,12 @@ class _RepsInfoState extends State<RepsInfo> {
                 ),
               ),
               TextButton(
-                onPressed: () => setState(() => newRepsValue += 1),
+                onPressed: () {
+                  if (newRepsValue < 20) {
+                    setState(() => newRepsValue += 1);
+                    getRepsColor();
+                  }
+                },
                 child: Text('+', style: TextStyle(fontSize: 35)),
               ),
             ],

@@ -29,45 +29,50 @@ class _DetailsScreenState extends State<DetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('${widget.exercise.name} details')),
-      body: Column(
-        mainAxisAlignment: .start,
-        children: [
-          const Icon(Icons.upload_file_outlined, size: 200),
-          Card(
-            child: InkWell(
-              onTap: () => setState(() {
-                isRegulatorsVisible = !isRegulatorsVisible;
-              }),
-              child: AnimatedCrossFade(
-                firstChild: RepsInfo(addRep: addRep),
-                secondChild: const Row(
-                  mainAxisAlignment: .center,
-                  children: [Icon(Icons.add, size: 55), Text('Add rep')],
+      body: Padding(
+        padding: const EdgeInsets.all(18.0),
+        child: Column(
+          mainAxisAlignment: .start,
+          children: [
+            Padding(padding: .all(20), child: const Placeholder()),
+            Card(
+              child: InkWell(
+                onTap: () => setState(() {
+                  isRegulatorsVisible = !isRegulatorsVisible;
+                }),
+                child: AnimatedCrossFade(
+                  firstChild: RepsInfo(addRep: addRep),
+                  secondChild: const Row(
+                    mainAxisAlignment: .center,
+                    children: [Icon(Icons.add, size: 55), Text('Add rep')],
+                  ),
+                  crossFadeState: isRegulatorsVisible
+                      ? .showFirst
+                      : .showSecond,
+                  duration: Duration(milliseconds: 400),
                 ),
-                crossFadeState: isRegulatorsVisible ? .showFirst : .showSecond,
-                duration: Duration(milliseconds: 400),
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: repsArchive.isEmpty
-                  ? Text('No reps of this exercise yet.')
-                  : ListView.builder(
-                      itemCount: repsArchive.length,
-                      itemBuilder: (context, index) => Card(
-                        child: ListTile(
-                          title: Text(
-                            '${repsArchive[index].reps} reps with ${repsArchive[index].weight} weight',
-                            textAlign: .center,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(18.0),
+                child: repsArchive.isEmpty
+                    ? Text('No reps of this exercise yet.')
+                    : ListView.builder(
+                        itemCount: repsArchive.length,
+                        itemBuilder: (context, index) => Card(
+                          child: ListTile(
+                            title: Text(
+                              '${repsArchive[index].reps} reps with ${repsArchive[index].weight} weight',
+                              textAlign: .center,
+                            ),
                           ),
                         ),
                       ),
-                    ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
