@@ -9,6 +9,7 @@ class SetsCardElement extends StatefulWidget {
     required this.isEditingMode,
     required this.onClick,
     required this.onDelete,
+    required this.isActive,
   });
 
   final String name;
@@ -16,6 +17,7 @@ class SetsCardElement extends StatefulWidget {
   final bool isEditingMode;
   final Function onClick;
   final VoidCallback onDelete;
+  final bool isActive;
   static const animationDuration = Duration(milliseconds: 500);
   static const curve = Curves.ease;
 
@@ -24,10 +26,9 @@ class SetsCardElement extends StatefulWidget {
 }
 
 class _SetsCardElementState extends State<SetsCardElement> {
-  bool isActive = false;
-
   @override
   Widget build(BuildContext context) {
+    bool isActive = widget.isActive;
     return Card(
       elevation: 4,
       color: isActive ? const Color.fromARGB(255, 125, 131, 1) : null,
@@ -66,10 +67,15 @@ class _SetsCardElementState extends State<SetsCardElement> {
                   child: Row(
                     mainAxisAlignment: .center,
                     children: [
-                      IconButton(icon: Icon(Icons.edit), onPressed: () {}),
                       IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: widget.onDelete,
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {},
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: widget.isEditingMode
+                            ? widget.onDelete
+                            : null,
                       ),
                     ],
                   ),

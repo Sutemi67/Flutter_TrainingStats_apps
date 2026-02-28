@@ -30,7 +30,8 @@ class _SelectScreenState extends State<SelectScreen>
 
   SetElement? selectedSet;
   List<SetElement> setsList = [];
-  List<ExerciseElement> exerciseList = [];
+  List<ExerciseElement> activeExerciseList = [];
+  List<ExerciseElement> loadedExerciseList = [];
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _SelectScreenState extends State<SelectScreen>
       end: 0.3,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _loadSets();
+    _loadExercises();
   }
 
   @override
@@ -60,6 +62,17 @@ class _SelectScreenState extends State<SelectScreen>
     }
   }
 
+  void _loadExercises() async {
+    if (loadedExerciseList.isEmpty) {
+      final loadedList = await db.getAllExercises();
+      print(loadedList);
+      setState(() {
+        loadedExerciseList = loadedList;
+        activeExerciseList = loadedList;
+      });
+    }
+  }
+
   void _toggleSetCreating() => setState(() {
     isSetCreating = !isSetCreating;
   });
@@ -68,11 +81,18 @@ class _SelectScreenState extends State<SelectScreen>
     isExerciseCreating = !isExerciseCreating;
   });
 
-  void _showExercisesInSet(SetElement set) {
-    setState(() {
-      selectedSet = set;
-      exerciseList = set.exercises;
-    });
+  void _onSetSelect(SetElement set) {
+    if (selectedSet != set) {
+      setState(() {
+        selectedSet = set;
+        activeExerciseList = set.exercises;
+      });
+    } else {
+      setState(() {
+        selectedSet = null;
+        activeExerciseList = loadedExerciseList;
+      });
+    }
   }
 
   void _deleteSet(SetElement set) async {
@@ -85,7 +105,7 @@ class _SelectScreenState extends State<SelectScreen>
       setsList.removeWhere((element) => element.id == setId);
       if (selectedSet?.id == setId) {
         selectedSet = null;
-        exerciseList = [];
+        activeExerciseList = loadedExerciseList;
       }
     });
   }
@@ -125,10 +145,11 @@ class _SelectScreenState extends State<SelectScreen>
                 child: ListView.builder(
                   itemCount: setsList.length,
                   itemBuilder: (context, index) => SetsCardElement(
+                    isActive: selectedSet == setsList[index],
                     isEditingMode: isEditingMode,
                     exercises: setsList[index].exercises,
                     name: setsList[index].name,
-                    onClick: () => _showExercisesInSet(setsList[index]),
+                    onClick: () => _onSetSelect(setsList[index]),
                     onDelete: () => _deleteSet(setsList[index]),
                   ),
                 ),
@@ -153,9 +174,9 @@ class _SelectScreenState extends State<SelectScreen>
                     color: Colors.redAccent.withAlpha(15),
                   ),
                   child: ListView.builder(
-                    itemCount: exerciseList.length,
+                    itemCount: activeExerciseList.length,
                     itemBuilder: (context, index) => ExerciseCardElement(
-                      exercise: exerciseList[index],
+                      exercise: activeExerciseList[index],
                       isEditingMode: isEditingMode,
                     ),
                   ),
@@ -219,14 +240,13 @@ class _SelectScreenState extends State<SelectScreen>
                                 border: const OutlineInputBorder(),
                                 suffixIcon: IconButton(
                                   onPressed: () {
+                                    final newEx = ExerciseElement(
+                                      name: enteringExerciseName,
+                                      reps: [],
+                                    );
                                     setState(() {
-                                      exerciseList.add(
-                                        ExerciseElement(
-                                          name: enteringExerciseName,
-                                          reps: [],
-                                        ),
-                                      );
-                                      enteringExerciseName = '';
+                                      activeExerciseList.add(newEx);
+                                      db.insertExercise(newEx);
                                     });
                                   },
                                   icon: const Icon(Icons.add),

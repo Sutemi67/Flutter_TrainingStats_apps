@@ -32,7 +32,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
       body: Column(
         mainAxisAlignment: .start,
         children: [
-          Icon(Icons.upload_file_outlined, size: 200),
+          const Icon(Icons.upload_file_outlined, size: 200),
           Card(
             child: InkWell(
               onTap: () => setState(() {
@@ -40,7 +40,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
               }),
               child: AnimatedCrossFade(
                 firstChild: RepsInfo(addRep: addRep),
-                secondChild: Row(
+                secondChild: const Row(
                   mainAxisAlignment: .center,
                   children: [Icon(Icons.add, size: 55), Text('Add rep')],
                 ),

@@ -1,10 +1,16 @@
+import 'package:flutter_training_stats_apps/data/usecases.dart/delete_exercise_usecase.dart';
+import 'package:flutter_training_stats_apps/data/usecases.dart/delete_set_usecase.dart';
+import 'package:flutter_training_stats_apps/data/usecases.dart/get_allexercises_usecase.dart';
+import 'package:flutter_training_stats_apps/data/usecases.dart/get_allsets_usecase.dart';
+import 'package:flutter_training_stats_apps/data/usecases.dart/insert_newexercise_usecase.dart';
+import 'package:flutter_training_stats_apps/data/usecases.dart/insert_newset_usecase.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
-import 'package:flutter_training_stats_apps/domain/reps_element.dart';
 import 'package:flutter_training_stats_apps/domain/set_element.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
   static final AppDatabase _instance = AppDatabase._internal();
+  static const dbVersion = 4;
   factory AppDatabase() => _instance;
   AppDatabase._internal();
 
@@ -19,7 +25,7 @@ class AppDatabase {
   Future<Database> _initDatabase() async {
     return await openDatabase(
       'app_database.db',
-      version: 2,
+      version: dbVersion,
       onUpgrade: _onUpgrade,
       onCreate: _onCreate,
       onConfigure: (db) async {
@@ -31,130 +37,99 @@ class AppDatabase {
 
   // Обработчик обновления схемы
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      // Удаляем старую таблицу users, если она существовала
-      await db.execute('DROP TABLE IF EXISTS users');
-      // Создаём новые таблицы (можно вызвать _onCreate, либо продублировать код)
+    if (oldVersion < newVersion) {
+      // 1. Дропаем старые таблицы в правильном порядке (сначала те, на которые есть ссылки)
+      await db.execute('DROP TABLE IF EXISTS reps');
+      await db.execute('DROP TABLE IF EXISTS set_exercises');
+      await db.execute('DROP TABLE IF EXISTS exercises');
+      await db.execute('DROP TABLE IF EXISTS sets');
+
+      // 2. Создаём новую схему
       await _onCreate(db, newVersion);
     }
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    // 1. Sets - независимая сущность
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS sets(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
-      )
-    ''');
+    CREATE TABLE IF NOT EXISTS sets(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL
+    )
+  ''');
 
+    // 2. Exercises - тоже независимая, без привязки к sets
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS exercises(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        set_id INTEGER NOT NULL,
-        FOREIGN KEY (set_id) REFERENCES sets(id) ON DELETE CASCADE
-      )
-    ''');
+    CREATE TABLE IF NOT EXISTS exercises(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL
+    )
+  ''');
 
+    // 3. связь многие-ко-многим между sets и exercises
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS reps(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        weight REAL NOT NULL,
-        reps INTEGER NOT NULL,
-        day TEXT NOT NULL,
-        exercise_id INTEGER NOT NULL UNIQUE,
-        FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
-      )
-    ''');
+    CREATE TABLE IF NOT EXISTS set_exercises(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      set_id INTEGER NOT NULL,
+      exercise_id INTEGER NOT NULL,
+      FOREIGN KEY (set_id) REFERENCES sets(id) ON DELETE CASCADE,
+      FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE,
+      UNIQUE(set_id, exercise_id)
+    )
+  ''');
+
+    // 4. Reps - привязаны к exercise
+    await db.execute('''
+    CREATE TABLE IF NOT EXISTS reps(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      weight REAL NOT NULL,
+      reps INTEGER NOT NULL,
+      day TEXT NOT NULL,
+      exercise_id INTEGER NOT NULL,
+      FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
+    )
+  ''');
+
+    // 5. Опционально: индексы для ускорения частых запросов
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_reps_exercise ON reps(exercise_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_set_exercises_set ON set_exercises(set_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_set_exercises_exercise ON set_exercises(exercise_id)',
+    );
   }
 
   // Вставка полного сета (со всеми упражнениями и повторениями)
   Future<int> insertSet(SetElement set) async {
     Database db = await database;
-    int setId = 0;
-
-    await db.transaction((txn) async {
-      // 1. Вставляем сет
-      setId = await txn.insert('sets', set.toMap());
-
-      // 2. Для каждого упражнения
-      for (var exercise in set.exercises) {
-        int exerciseId = await txn.insert('exercises', exercise.toMap(setId));
-
-        // 3. Вставляем все повторения для упражнения
-        for (final repsElement in exercise.reps) {
-          await txn.insert('reps', repsElement.toMap(exerciseId));
-        }
-      }
-    });
-
-    return setId;
+    return insertSetUsecase(set, db);
   }
 
   //Получить все сеты
   Future<List<SetElement>> getAllSets() async {
     final db = await database;
-
-    // 1. Получаем все сеты
-    final setsMaps = await db.query('sets');
-
-    // 2. Получаем все упражнения
-    final exercisesMaps = await db.query('exercises');
-
-    // 3. Получаем все повторения
-    final repsMaps = await db.query('reps');
-
-    // Группируем упражнения по set_id
-    final Map<int, List<Map<String, dynamic>>> exercisesBySet = {};
-    for (final exMap in exercisesMaps) {
-      final setId = exMap['set_id'] as int;
-      exercisesBySet.putIfAbsent(setId, () => []).add(exMap);
-    }
-
-    // Группируем повторения по exercise_id
-    final Map<int, List<RepsElement>> repsByExercise = {};
-    for (final repMap in repsMaps) {
-      final exerciseId = repMap['exercise_id'] as int;
-      repsByExercise
-          .putIfAbsent(exerciseId, () => [])
-          .add(
-            RepsElement(
-              weight: (repMap['weight'] as num).toDouble(),
-              reps: repMap['reps'] as int,
-              day: DateTime.parse(repMap['day'] as String),
-            ),
-          );
-    }
-
-    // Строим результат
-    final List<SetElement> result = [];
-    for (final setMap in setsMaps) {
-      final setId = setMap['id'] as int;
-      final setName = setMap['name'] as String;
-
-      final List<ExerciseElement> exercises = [];
-      final exMapsForSet = exercisesBySet[setId] ?? [];
-
-      for (final exMap in exMapsForSet) {
-        final exerciseId = exMap['id'] as int;
-        final exerciseName = exMap['name'] as String;
-        final repsList = repsByExercise[exerciseId] ?? [];
-
-        exercises.add(ExerciseElement(name: exerciseName, reps: repsList));
-      }
-
-      result.add(SetElement(id: setId, name: setName, exercises: exercises));
-    }
-
-    return result;
+    return getAllSetsUsecase(db);
   }
 
   Future<void> deleteSet(int setId) async {
     final db = await database;
-    await db.delete(
-      'sets',
-      where: 'id = ?',
-      whereArgs: [setId],
-    );
+    deleteSetUsecase(setId, db);
+  }
+
+  Future<int> insertExercise(ExerciseElement exercise) async {
+    final db = await database;
+    return insertExerciseUsecase(exercise, db);
+  }
+
+  Future<void> deleteExercise(int exerciseId) async {
+    final db = await database;
+    deleteExerciseUsecase(db, exerciseId);
+  }
+
+  Future<List<ExerciseElement>> getAllExercises() async {
+    return getAllExercisesUsecase(await database);
   }
 }

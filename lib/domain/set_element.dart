@@ -5,26 +5,7 @@ final class SetElement {
   final String name;
   final List<ExerciseElement> exercises;
 
-  SetElement({
-    this.id,
-    required this.exercises,
-    required this.name,
-  });
+  SetElement({this.id, required this.exercises, required this.name});
 
-  Map<String, dynamic> toMap() {
-    // id не сохраняем, так как он AUTOINCREMENT в БД
-    return {'name': name};
-  }
-}
-
-class SetElementDto {
-  final int id;
-  final String name;
-
-  SetElementDto({required this.id, required this.name});
-
-  factory SetElementDto.fromMap(Map<int, dynamic> map) {
-    return SetElementDto(id: map['id'], name: map['name']);
-  }
-
+  Map<String, dynamic> toMap() => {'name': name};
 }
