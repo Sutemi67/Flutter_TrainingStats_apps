@@ -4,6 +4,7 @@ import 'package:flutter_training_stats_apps/domain/reps_element.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
 import 'package:flutter_training_stats_apps/ui/screens/details/details_chart.dart';
 import 'package:flutter_training_stats_apps/ui/screens/details/slider_row.dart';
+import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
 import 'package:intl/intl.dart';
 
 class DetailsScreen extends StatefulWidget {
@@ -15,7 +16,13 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  List<RepsElement> repsArchive = [];
+  List<RepsElement> repsArchive = [
+    // RepsElement(weight: 23, reps: 7, day: DateTime(2025, 10, 13)),
+    // RepsElement(weight: 23, reps: 7, day: DateTime(2025, 10, 13)),
+    // RepsElement(weight: 23, reps: 7, day: DateTime(2025, 10, 14)),
+    // RepsElement(weight: 23, reps: 7, day: DateTime(2025, 10, 14)),
+    // RepsElement(weight: 67, reps: 7, day: DateTime(2025, 10, 15)),
+  ];
   bool isRegulatorsVisible = false;
   double newRepsValue = 0;
   final _scrollController = ScrollController();
@@ -23,9 +30,15 @@ class _DetailsScreenState extends State<DetailsScreen> {
   @override
   void initState() {
     super.initState();
-    // repsArchive = widget.exercise.reps;
-    repsArchive = List<RepsElement>.from(widget.exercise.reps);
+    repsArchive = widget.exercise.reps;
     _scrollToTop();
+  }
+
+  bool _isToday(DateTime date) {
+    final now = DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 
   Future<void> addRep(double weight, int reps) async {
@@ -34,7 +47,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
       try {
         await widget.db.insertReps(widget.exercise.id!, rep);
         setState(() {
-          repsArchive = [...repsArchive, rep];
+          repsArchive.add(rep);
         });
         _scrollToTop();
       } catch (e) {
@@ -121,8 +134,10 @@ class _DetailsScreenState extends State<DetailsScreen> {
                         reverse: true,
                         itemBuilder: (context, index) {
                           var rep = repsArchive[index];
+                          final isToday = _isToday(rep.day);
                           return Card(
                             margin: EdgeInsets.only(bottom: 8),
+                            color: isToday ? null : exerciseMainColor,
                             child: ListTile(
                               leading: CircleAvatar(child: Text('${rep.reps}')),
                               title: Text(

@@ -45,9 +45,13 @@ class TrainCard extends StatelessWidget {
     return Card(
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-        child: Row(
-          mainAxisAlignment: .spaceBetween,
-          children: [Text(_formatDateRelative(trainDate)), Text('$weight')],
+        child: ListTile(
+          leading: CircleAvatar(),
+          title: Text(
+            _formatDateRelative(trainDate),
+            style: TextStyle(fontSize: 18),
+          ),
+          subtitle: Text('$weight килограмм'),
         ),
       ),
     );
