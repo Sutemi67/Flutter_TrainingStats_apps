@@ -15,14 +15,24 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  List<RepsElement> repsArchive = [];
+  List<RepsElement> repsArchive = [
+    RepsElement(weight: 200, reps: 10, day: DateTime(2025, 10, 12)),
+    RepsElement(weight: 220, reps: 10, day: DateTime(2025, 10, 11)),
+    RepsElement(weight: 230, reps: 10, day: DateTime(2025, 10, 11)),
+    RepsElement(weight: 240, reps: 10, day: DateTime(2025, 10, 11)),
+    RepsElement(weight: 250, reps: 10, day: DateTime(2025, 10, 13)),
+    RepsElement(weight: 210, reps: 10, day: DateTime(2025, 10, 13)),
+    RepsElement(weight: 210, reps: 10, day: DateTime(2025, 10, 29)),
+    RepsElement(weight: 210, reps: 10, day: DateTime(2025, 10, 29)),
+    RepsElement(weight: 210, reps: 10, day: DateTime(2025, 10, 29)),
+  ];
   bool isRegulatorsVisible = false;
   double newRepsValue = 0;
   final _scrollController = ScrollController();
 
   @override
   void initState() {
-    repsArchive = List<RepsElement>.from(widget.exercise.reps);
+    // repsArchive = List<RepsElement>.from(widget.exercise.reps);
     // repsArchive = widget.exercise.reps;
     super.initState();
     _scrollToTop();
@@ -32,8 +42,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
     if (weight != 0.0 && reps != 0) {
       final rep = RepsElement(weight: weight, reps: reps, day: DateTime.now());
       setState(() {
-        // Добавляем в начало списка — новые записи сверху
-        // repsArchive.insert(0, rep);
         repsArchive = [rep, ...repsArchive];
       });
       _scrollToTop();

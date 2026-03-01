@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_training_stats_apps/domain/reps_element.dart';
 import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
+import 'package:intl/intl.dart';
 
 class RepsGraph extends StatelessWidget {
   final List<RepsElement> workoutsData;
@@ -94,11 +95,11 @@ class RepsGraph extends StatelessWidget {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 40,
+            reservedSize: 60,
             getTitlesWidget: (value, meta) {
               if (value == 0) return const Text('');
               return Text(
-                '${value.toInt()}',
+                '${value.toInt()}kg',
                 style: TextStyle(fontSize: 10, color: Colors.grey),
               );
             },
@@ -106,6 +107,7 @@ class RepsGraph extends StatelessWidget {
         ),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
+            interval: 1,
             showTitles: true,
             reservedSize: 30,
             getTitlesWidget: (value, meta) {
@@ -115,9 +117,9 @@ class RepsGraph extends StatelessWidget {
                 return SideTitleWidget(
                   meta: meta,
                   child: Transform.rotate(
-                    angle: -0.9,
+                    angle: -0.5,
                     child: Text(
-                      '${date.day}.${date.month}',
+                      DateFormat('d MMM', 'ru').format(date),
                       style: TextStyle(fontSize: 10, color: Colors.grey),
                     ),
                   ),
