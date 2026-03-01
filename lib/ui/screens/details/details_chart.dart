@@ -48,14 +48,11 @@ class RepsGraph extends StatelessWidget {
   }
 
   LineChartData _createChartData() {
-    // Группируем данные по датам и суммируем weight * reps
+    // 1. Группируем данные по датам (нормализуем до начала дня)
     Map<DateTime, double> volumeByDate = {};
-
     for (var rep in workoutsData) {
-      // Нормализуем дату до начала дня (без времени)
-      DateTime date = DateTime(rep.day.year, rep.day.month, rep.day.day);
-      double volume = rep.weight * rep.reps;
-
+      final date = DateTime(rep.day.year, rep.day.month, rep.day.day);
+      final volume = rep.weight * rep.reps;
       volumeByDate.update(
         date,
         (value) => value + volume,
@@ -63,69 +60,89 @@ class RepsGraph extends StatelessWidget {
       );
     }
 
-    // Сортируем даты и создаём точки
-    List<DateTime> sortedDates = volumeByDate.keys.toList()
-      ..sort((a, b) => a.compareTo(b));
+    // 2. Сортируем даты
+    final sortedDates = volumeByDate.keys.toList()..sort();
 
-    List<FlSpot> spots = sortedDates
-        .asMap()
-        .entries
-        .map(
-          (entry) =>
-              FlSpot(entry.key.toDouble(), volumeByDate[entry.value] ?? 0),
-        )
-        .toList();
+    // 3. Создаём точки, используя timestamp (в днях) для оси X
+    // Это обеспечит пропорциональное расстояние между датами
+    final spots = sortedDates.map((date) {
+      // Конвертируем дату в double: дни с 1970 года
+      final x = date.millisecondsSinceEpoch / (24 * 60 * 60 * 1000);
+      final y = volumeByDate[date]!;
+      return FlSpot(x, y);
+    }).toList();
 
-    // Находим максимальное значение для масштабирования Y-оси
-    double maxY = spots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
+    if (spots.isEmpty) {
+      return LineChartData();
+    }
+
+    // 4. Вычисляем максимум для оси Y
+    final maxY = spots.map((e) => e.y).reduce((a, b) => a > b ? a : b);
+
+    // 5. Находим minX и maxX на основе временных меток
+    final minX = spots.first.x;
+    final maxX = spots.last.x;
 
     return LineChartData(
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
         horizontalInterval: maxY / 5,
-        getDrawingHorizontalLine: (value) {
-          return FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1);
-        },
-        getDrawingVerticalLine: (value) {
-          return FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1);
-        },
+        getDrawingHorizontalLine: (value) =>
+            FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
+        getDrawingVerticalLine: (value) =>
+            FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 1),
       ),
       titlesData: FlTitlesData(
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 60,
+            reservedSize: 40,
             getTitlesWidget: (value, meta) {
-              if (value == 0) return const Text('');
+              if (value == 0) return const SizedBox.shrink();
               return Text(
-                '${value.toInt()}kg',
-                style: TextStyle(fontSize: 10, color: Colors.grey),
+                '${value.toInt()}',
+                style: const TextStyle(fontSize: 10, color: Colors.grey),
               );
             },
           ),
         ),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
-            interval: 1,
             showTitles: true,
-            reservedSize: 30,
+            reservedSize: 50,
+            // interval в "днях" - показываем подпись примерно каждые N дней
+            // Можно настроить под ваши данные: 1, 3, 7 и т.д.
+            interval: 3,
             getTitlesWidget: (value, meta) {
-              int index = value.toInt();
-              if (index >= 0 && index < sortedDates.length) {
-                DateTime date = sortedDates[index];
-                return SideTitleWidget(
-                  meta: meta,
-                  child: Transform.rotate(
-                    angle: -0.5,
-                    child: Text(
-                      DateFormat('d MMM', 'ru').format(date),
-                      style: TextStyle(fontSize: 10, color: Colors.grey),
-                    ),
-                  ),
-                );
+              // Конвертируем X (дни) обратно в DateTime
+              final timestampMs = (value * 24 * 60 * 60 * 1000).toInt();
+              final date = DateTime.fromMillisecondsSinceEpoch(timestampMs);
+
+              // Показываем подпись только если эта дата есть в наших данных
+              // (или очень близка к одной из них)
+              final hasDataPoint = sortedDates.any(
+                (d) => d.difference(date).abs().inDays <= 1,
+              );
+
+              if (!hasDataPoint) {
+                return const SizedBox.shrink();
               }
-              return const Text('');
+
+              // Форматируем дату
+              final dateStr = DateFormat('d MMM', 'ru').format(date);
+
+              return SideTitleWidget(
+                meta: meta,
+                space: 10,
+                child: Transform.rotate(
+                  angle: -0.5,
+                  child: Text(
+                    dateStr,
+                    style: const TextStyle(fontSize: 10, color: Colors.grey),
+                  ),
+                ),
+              );
             },
           ),
         ),
@@ -134,32 +151,18 @@ class RepsGraph extends StatelessWidget {
         ),
         topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
-      // borderData: FlBorderData(
-      //   show: false,
-      //   border: Border.all(color: Colors.grey.withAlpha(50)),
-      // ),
-      minX: 0,
-      maxX: spots.length > 1 ? (spots.length - 1).toDouble() : 1,
+      minX: minX,
+      maxX: maxX,
       minY: 0,
-      maxY: maxY * 1.2, // 20% запаса сверху
+      maxY: maxY * 1.2,
       lineBarsData: [
         LineChartBarData(
           spots: spots,
-          isCurved: true, // Плавные линии! ✨
+          isCurved: true,
           color: setsSelectedColor,
           barWidth: 3,
           isStrokeCapRound: true,
-          dotData: FlDotData(
-            show: false,
-            getDotPainter: (spot, percent, barData, index) {
-              return FlDotCirclePainter(
-                radius: 1,
-                color: Colors.white,
-                strokeWidth: 2,
-                strokeColor: Colors.blue,
-              );
-            },
-          ),
+          dotData: FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
@@ -175,30 +178,47 @@ class RepsGraph extends StatelessWidget {
         touchTooltipData: LineTouchTooltipData(
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
-              int index = spot.x.toInt();
-              if (index >= 0 && index < sortedDates.length) {
-                DateTime date = sortedDates[index];
-                return LineTooltipItem(
-                  '${date.day}.${date.month}.${date.year}\n',
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  children: [
-                    TextSpan(
-                      text: 'Объём: ${spot.y.toInt()}',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                );
-              }
+              // Конвертируем X обратно в дату для тултипа
+              final timestampMs = (spot.x * 24 * 60 * 60 * 1000).toInt();
+              final date = DateTime.fromMillisecondsSinceEpoch(timestampMs);
+
               return LineTooltipItem(
-                '${spot.y.toInt()}',
-                TextStyle(color: Colors.white),
+                '${date.day}.${date.month}.${date.year}\n',
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                children: [
+                  TextSpan(
+                    text: 'Объём: ${spot.y.toInt()}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
               );
             }).toList();
           },
-          // tooltipBgColor: Colors.blueGrey,
-          tooltipBorderRadius: BorderRadius.all(Radius.circular(20)),
+          tooltipBorderRadius: const BorderRadius.all(Radius.circular(12)),
         ),
         handleBuiltInTouches: true,
+        // Улучшаем точность определения точки при тапе
+        getTouchedSpotIndicator: (barData, spotIndexes) {
+          return spotIndexes.map((index) {
+            return TouchedSpotIndicatorData(
+              FlLine(color: Colors.blue, strokeWidth: 2),
+              FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, bar, index) {
+                  return FlDotCirclePainter(
+                    radius: 4,
+                    color: Colors.white,
+                    strokeWidth: 2,
+                    strokeColor: Colors.blue,
+                  );
+                },
+              ),
+            );
+          }).toList();
+        },
       ),
     );
   }

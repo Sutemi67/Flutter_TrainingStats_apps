@@ -15,37 +15,37 @@ class DetailsScreen extends StatefulWidget {
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  List<RepsElement> repsArchive = [
-    RepsElement(weight: 200, reps: 10, day: DateTime(2025, 10, 12)),
-    RepsElement(weight: 220, reps: 10, day: DateTime(2025, 10, 11)),
-    RepsElement(weight: 230, reps: 10, day: DateTime(2025, 10, 11)),
-    RepsElement(weight: 240, reps: 10, day: DateTime(2025, 10, 11)),
-    RepsElement(weight: 250, reps: 10, day: DateTime(2025, 10, 13)),
-    RepsElement(weight: 210, reps: 10, day: DateTime(2025, 10, 13)),
-    RepsElement(weight: 210, reps: 10, day: DateTime(2025, 10, 29)),
-    RepsElement(weight: 210, reps: 10, day: DateTime(2025, 10, 29)),
-    RepsElement(weight: 210, reps: 10, day: DateTime(2025, 10, 29)),
-  ];
+  List<RepsElement> repsArchive = [];
   bool isRegulatorsVisible = false;
   double newRepsValue = 0;
   final _scrollController = ScrollController();
 
   @override
   void initState() {
-    // repsArchive = List<RepsElement>.from(widget.exercise.reps);
-    // repsArchive = widget.exercise.reps;
     super.initState();
+    // repsArchive = widget.exercise.reps;
+    repsArchive = List<RepsElement>.from(widget.exercise.reps);
     _scrollToTop();
   }
 
-  void addRep(double weight, int reps) {
+  Future<void> addRep(double weight, int reps) async {
     if (weight != 0.0 && reps != 0) {
       final rep = RepsElement(weight: weight, reps: reps, day: DateTime.now());
-      setState(() {
-        repsArchive = [rep, ...repsArchive];
-      });
-      _scrollToTop();
-      widget.db.insertReps(widget.exercise.id!, rep);
+      try {
+        await widget.db.insertReps(widget.exercise.id!, rep);
+        setState(() {
+          repsArchive = [...repsArchive, rep];
+        });
+        _scrollToTop();
+      } catch (e) {
+        // Обработка ошибок БД
+        debugPrint('❌ Error saving reps: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Не удалось сохранить: $e')));
+        }
+      }
     }
   }
 
@@ -134,7 +134,6 @@ class _DetailsScreenState extends State<DetailsScreen> {
                               ),
                               trailing: Text(
                                 DateFormat('d MMMM', 'ru').format(rep.day),
-                                // '${rep.day.day}.${rep.day.month}',
                                 style: TextStyle(color: Colors.grey),
                               ),
                             ),

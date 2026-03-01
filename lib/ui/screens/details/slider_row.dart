@@ -9,26 +9,31 @@ class RepsInfo extends StatefulWidget {
 }
 
 class _RepsInfoState extends State<RepsInfo> {
-  int newRepsValue = 0;
-  double newWeightValue = 0;
-  Color repsSliderColor = Colors.red;
+  static const _maxSliderValue = 199.0;
+  static const _minSliderValue = 1.0;
+  static final int _divisions = ((_maxSliderValue - _minSliderValue) * 2)
+      .toInt();
+
+  int _newRepsValue = 0;
+  double _newWeightValue = 1;
+  Color _repsSliderColor = Colors.red;
 
   void getRepsColor() {
-    if (newRepsValue >= 0 && newRepsValue < 4) {
+    if (_newRepsValue >= 0 && _newRepsValue < 4) {
       setState(() {
-        repsSliderColor = Colors.red;
+        _repsSliderColor = Colors.red;
       });
-    } else if (newRepsValue >= 4 && newRepsValue < 8) {
+    } else if (_newRepsValue >= 4 && _newRepsValue < 8) {
       setState(() {
-        repsSliderColor = Colors.yellow;
+        _repsSliderColor = Colors.yellow;
       });
-    } else if (newRepsValue >= 8 && newRepsValue < 12) {
+    } else if (_newRepsValue >= 8 && _newRepsValue < 12) {
       setState(() {
-        repsSliderColor = Colors.green;
+        _repsSliderColor = Colors.green;
       });
     } else {
       setState(() {
-        repsSliderColor = Colors.grey;
+        _repsSliderColor = Colors.grey;
       });
     }
   }
@@ -40,7 +45,7 @@ class _RepsInfoState extends State<RepsInfo> {
       children: [
         IconButton(
           icon: Icon(Icons.add, size: 155),
-          onPressed: () => widget.addRep(newWeightValue, newRepsValue),
+          onPressed: () => widget.addRep(_newWeightValue, _newRepsValue),
         ),
         Card(
           surfaceTintColor: setsMainColor,
@@ -51,13 +56,13 @@ class _RepsInfoState extends State<RepsInfo> {
                 padding: const EdgeInsets.all(15),
                 child: SizedBox(
                   width: 97,
-                  child: Text('Weight: $newWeightValue'),
+                  child: Text('Weight: $_newWeightValue'),
                 ),
               ),
               TextButton(
                 onPressed: () {
-                  if (newWeightValue > 0) {
-                    setState(() => newWeightValue -= 0.5);
+                  if (_newWeightValue > _minSliderValue) {
+                    setState(() => _newWeightValue -= 0.5);
                   }
                 },
                 child: Text('-', style: TextStyle(fontSize: 35)),
@@ -65,20 +70,20 @@ class _RepsInfoState extends State<RepsInfo> {
               Expanded(
                 child: Slider(
                   activeColor: setsSelectedColor,
-                  value: newWeightValue,
-                  divisions: 400,
+                  value: _newWeightValue,
+                  divisions: _divisions,
                   onChanged: (double value) => setState(
-                    () => newWeightValue = (value * 10).round() / 10,
+                    () => _newWeightValue = (value * 10).round() / 10,
                   ),
-                  label: newWeightValue.toString(),
-                  min: 0,
-                  max: 200,
+                  label: _newWeightValue.toString(),
+                  min: _minSliderValue,
+                  max: _maxSliderValue,
                 ),
               ),
               TextButton(
                 onPressed: () {
-                  if (newWeightValue < 200) {
-                    setState(() => newWeightValue += 0.5);
+                  if (_newWeightValue < _maxSliderValue) {
+                    setState(() => _newWeightValue += 0.5);
                   }
                 },
                 child: Text('+', style: TextStyle(fontSize: 35)),
@@ -93,12 +98,12 @@ class _RepsInfoState extends State<RepsInfo> {
             children: [
               Padding(
                 padding: EdgeInsets.all(15),
-                child: SizedBox(width: 97, child: Text('Reps: $newRepsValue')),
+                child: SizedBox(width: 97, child: Text('Reps: $_newRepsValue')),
               ),
               TextButton(
                 onPressed: () {
-                  if (newRepsValue > 0) {
-                    setState(() => newRepsValue--);
+                  if (_newRepsValue > 0) {
+                    setState(() => _newRepsValue--);
                     getRepsColor();
                   }
                 },
@@ -106,24 +111,24 @@ class _RepsInfoState extends State<RepsInfo> {
               ),
               Expanded(
                 child: Slider(
-                  activeColor: repsSliderColor,
-                  value: newRepsValue.toDouble(),
+                  activeColor: _repsSliderColor,
+                  value: _newRepsValue.toDouble(),
                   divisions: 20,
                   onChanged: (double value) {
                     setState(() {
-                      newRepsValue = value.toInt();
+                      _newRepsValue = value.toInt();
                       getRepsColor();
                     });
                   },
-                  label: newRepsValue.toString(),
+                  label: _newRepsValue.toString(),
                   min: 0,
                   max: 20,
                 ),
               ),
               TextButton(
                 onPressed: () {
-                  if (newRepsValue < 20) {
-                    setState(() => newRepsValue += 1);
+                  if (_newRepsValue < 20) {
+                    setState(() => _newRepsValue += 1);
                     getRepsColor();
                   }
                 },

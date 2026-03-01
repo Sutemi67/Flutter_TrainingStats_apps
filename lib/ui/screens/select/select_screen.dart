@@ -68,7 +68,6 @@ class _SelectScreenState extends State<SelectScreen>
   void _loadSets() async {
     if (setsList.isEmpty) {
       final loadedList = await db.getAllSets();
-      print('$loadedList in init state');
       setState(() {
         setsList = loadedList;
       });
