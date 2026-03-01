@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_training_stats_apps/domain/reps_element.dart';
+import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
 
 class RepsGraph extends StatelessWidget {
   final List<RepsElement> workoutsData;
@@ -10,7 +11,7 @@ class RepsGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (workoutsData.isEmpty) {
-      return SizedBox(
+      return const SizedBox(
         height: 250,
         child: Card(
           child: Center(
@@ -37,7 +38,7 @@ class RepsGraph extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: LineChart(
             _createChartData(),
-            duration: Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 1500),
             curve: Curves.easeInOut,
           ),
         ),
@@ -126,8 +127,10 @@ class RepsGraph extends StatelessWidget {
             },
           ),
         ),
-        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: const AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
       // borderData: FlBorderData(
       //   show: false,
@@ -141,7 +144,7 @@ class RepsGraph extends StatelessWidget {
         LineChartBarData(
           spots: spots,
           isCurved: true, // Плавные линии! ✨
-          color: Colors.blue,
+          color: setsSelectedColor,
           barWidth: 3,
           isStrokeCapRound: true,
           dotData: FlDotData(

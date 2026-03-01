@@ -220,6 +220,7 @@ class _SelectScreenState extends State<SelectScreen>
                     itemBuilder: (context, index) {
                       final editingExercise = activeExerciseList[index];
                       return ExerciseCardElement(
+                        db: db,
                         isInSelectedSet: _isInSelectedSet(editingExercise),
                         isSetEditing: isSetEditing,
                         isGlobalEditMode: isEditingMode,

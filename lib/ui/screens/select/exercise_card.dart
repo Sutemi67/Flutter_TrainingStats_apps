@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_training_stats_apps/data/database.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
 import 'package:flutter_training_stats_apps/ui/screens/details/details_screen.dart';
 import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
@@ -12,6 +13,7 @@ class ExerciseCardElement extends StatelessWidget {
     required this.isSetEditing,
     required this.onDelete,
     required this.onCheckBoxClick,
+    required this.db,
   });
 
   final ExerciseElement exercise;
@@ -20,6 +22,7 @@ class ExerciseCardElement extends StatelessWidget {
   final bool isSetEditing;
   final VoidCallback onDelete;
   final Function onCheckBoxClick;
+  final AppDatabase db;
   static const animationDuration = Duration(milliseconds: 500);
   static const curve = Curves.ease;
 
@@ -27,7 +30,7 @@ class ExerciseCardElement extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (builder) => DetailsScreen(exercise: exercise),
+        builder: (builder) => DetailsScreen(exercise: exercise, db: db),
       ),
     );
   }

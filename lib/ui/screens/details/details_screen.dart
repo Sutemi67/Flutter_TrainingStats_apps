@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_training_stats_apps/data/database.dart';
 import 'package:flutter_training_stats_apps/domain/reps_element.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
 import 'package:flutter_training_stats_apps/ui/screens/details/details_chart.dart';
 import 'package:flutter_training_stats_apps/ui/screens/details/slider_row.dart';
+import 'package:intl/intl.dart';
 
 class DetailsScreen extends StatefulWidget {
-  const DetailsScreen({super.key, required this.exercise});
+  const DetailsScreen({super.key, required this.exercise, required this.db});
   final ExerciseElement exercise;
+  final AppDatabase db;
   @override
   State<DetailsScreen> createState() => _DetailsScreenState();
 }
 
 class _DetailsScreenState extends State<DetailsScreen> {
-  List<RepsElement> repsArchive = List.generate(30, (index) {
-    return RepsElement(
-      weight: index * 0.3,
-      reps: 12,
-      day: DateTime(2025, 10, index * 2),
-    );
-  });
+  List<RepsElement> repsArchive = [];
   bool isRegulatorsVisible = false;
   double newRepsValue = 0;
   final _scrollController = ScrollController();
 
   @override
   void initState() {
+    repsArchive = List<RepsElement>.from(widget.exercise.reps);
     // repsArchive = widget.exercise.reps;
     super.initState();
     _scrollToTop();
@@ -32,14 +30,14 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
   void addRep(double weight, int reps) {
     if (weight != 0.0 && reps != 0) {
+      final rep = RepsElement(weight: weight, reps: reps, day: DateTime.now());
       setState(() {
         // Добавляем в начало списка — новые записи сверху
-        repsArchive.insert(
-          0,
-          RepsElement(weight: weight, reps: reps, day: DateTime.now()),
-        );
+        // repsArchive.insert(0, rep);
+        repsArchive = [rep, ...repsArchive];
       });
       _scrollToTop();
+      widget.db.insertReps(widget.exercise.id!, rep);
     }
   }
 
@@ -127,7 +125,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
                                 style: TextStyle(color: Colors.grey),
                               ),
                               trailing: Text(
-                                '${rep.day.day}.${rep.day.month}',
+                                DateFormat('d MMMM', 'ru').format(rep.day),
+                                // '${rep.day.day}.${rep.day.month}',
                                 style: TextStyle(color: Colors.grey),
                               ),
                             ),

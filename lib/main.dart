@@ -31,6 +31,7 @@ class MainApp extends StatelessWidget {
         AppRoutesNames.splashRoute: (context) => const SplashScreen(),
         AppRoutesNames.selectRoute: (context) => SelectScreen(db: db),
         AppRoutesNames.detailsRoute: (context) => DetailsScreen(
+          db: db,
           exercise: ExerciseElement(name: '', reps: []),
         ),
       },

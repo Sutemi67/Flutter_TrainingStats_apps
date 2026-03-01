@@ -5,8 +5,10 @@ import 'package:flutter_training_stats_apps/data/usecases.dart/get_allexercises_
 import 'package:flutter_training_stats_apps/data/usecases.dart/get_allsets_usecase.dart';
 import 'package:flutter_training_stats_apps/data/usecases.dart/insert_newexercise_usecase.dart';
 import 'package:flutter_training_stats_apps/data/usecases.dart/insert_newset_usecase.dart';
+import 'package:flutter_training_stats_apps/data/usecases.dart/insert_rep_usecase.dart';
 import 'package:flutter_training_stats_apps/data/usecases.dart/remove_exercise_from_set.dart';
 import 'package:flutter_training_stats_apps/domain/exercise_element.dart';
+import 'package:flutter_training_stats_apps/domain/reps_element.dart';
 import 'package:flutter_training_stats_apps/domain/set_element.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -141,5 +143,9 @@ class AppDatabase {
 
   Future<bool> removeExerciseFromSet(int setId, int exerciseId) async {
     return removeExerciseFromSetUsecase(await database, setId, exerciseId);
+  }
+
+  Future<int> insertReps(int exerciseId, RepsElement reps) async {
+    return insertRepsUsecase(await database, exerciseId, reps);
   }
 }
