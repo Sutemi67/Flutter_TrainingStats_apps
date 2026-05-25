@@ -137,7 +137,7 @@ class AppDatabase {
     return getAllExercisesUsecase(await database);
   }
 
-  Future<void> addExerciseToSet(int setId, int exerciseId) async {
+  Future<void> addExerciseToSet(int setId, int? exerciseId) async {
     addExerciseToSetUsecase(await database, setId, exerciseId);
   }
 

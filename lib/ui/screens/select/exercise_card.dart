@@ -21,7 +21,7 @@ class ExerciseCardElement extends StatelessWidget {
   final bool isInSelectedSet;
   final bool isSetEditing;
   final VoidCallback onDelete;
-  final Function onCheckBoxClick;
+  final Function(bool) onCheckBoxClick;
   final AppDatabase db;
   static const animationDuration = Duration(milliseconds: 500);
   static const curve = Curves.ease;
@@ -47,51 +47,54 @@ class ExerciseCardElement extends StatelessWidget {
         splashColor: exerciseSelectedColor,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .center,
-            children: [
-              AnimatedScale(
-                scale: isGlobalEditMode ? 1 : 1.5,
-                duration: animationDuration,
-                child: AnimatedSlide(
-                  curve: curve,
-                  offset: isGlobalEditMode
-                      ? const Offset(0, 0)
-                      : const Offset(0, 0.7),
+          child: AnimatedCrossFade(
+            sizeCurve: Curves.decelerate,
+            firstChild: Column(
+              mainAxisSize: .min,
+              mainAxisAlignment: .spaceBetween,
+              crossAxisAlignment: .center,
+              children: [
+                Text(exercise.name, overflow: TextOverflow.ellipsis),
+                AnimatedOpacity(
+                  opacity: isGlobalEditMode ? 1 : 0,
                   duration: animationDuration,
-                  child: Text(exercise.name, overflow: TextOverflow.ellipsis),
-                ),
-              ),
-
-              AnimatedOpacity(
-                opacity: isGlobalEditMode ? 1 : 0,
-                duration: animationDuration,
-                child: AnimatedSlide(
-                  offset: isGlobalEditMode
-                      ? const Offset(0, 0)
-                      : const Offset(0, -0.3),
-                  duration: animationDuration,
-                  curve: curve,
-                  child: Row(
-                    mainAxisAlignment: .center,
-                    children: [
-                      if (isSetEditing)
-                        Checkbox(
-                          value: isInSelectedSet,
-                          onChanged: isGlobalEditMode
-                              ? (value) => onCheckBoxClick(value)
-                              : null,
+                  child: AnimatedSlide(
+                    offset: isGlobalEditMode
+                        ? const Offset(0, 0)
+                        : const Offset(0, -0.3),
+                    duration: animationDuration,
+                    curve: curve,
+                    child: Row(
+                      mainAxisAlignment: .center,
+                      children: [
+                        if (isSetEditing)
+                          Checkbox(
+                            value: isInSelectedSet,
+                            onChanged: isGlobalEditMode
+                                ? (value) => onCheckBoxClick(value!)
+                                : null,
+                          ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: isGlobalEditMode ? onDelete : null,
                         ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: isGlobalEditMode ? onDelete : null,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
+              ],
+            ),
+            secondChild: SizedBox(
+              width: .infinity,
+              child: Text(
+                exercise.name,
+                textAlign: .center,
+                overflow: TextOverflow.ellipsis,
+                // style: TextStyle(fontSize: 6),
               ),
-            ],
+            ),
+            crossFadeState: isGlobalEditMode ? .showFirst : .showSecond,
+            duration: Duration(seconds: 1),
           ),
         ),
       ),

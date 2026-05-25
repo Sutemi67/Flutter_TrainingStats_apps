@@ -46,45 +46,54 @@ class _SetsCardElementState extends State<SetsCardElement> {
         splashColor: setsSelectedColor,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: .min,
-            crossAxisAlignment: .center,
-            children: [
-              AnimatedScale(
-                scale: widget.isEditingMode ? 1 : 1.5,
-                duration: SetsCardElement.animationDuration,
-                child: AnimatedSlide(
-                  curve: SetsCardElement.curve,
-                  offset: widget.isEditingMode ? Offset(0, 0) : Offset(0, 0.7),
+          child: AnimatedCrossFade(
+            firstChild: Column(
+              mainAxisSize: .min,
+              mainAxisAlignment: .spaceBetween,
+              crossAxisAlignment: .center,
+              children: [
+                Text(widget.name, overflow: TextOverflow.ellipsis),
+                AnimatedOpacity(
+                  opacity: widget.isEditingMode ? 1 : 0,
                   duration: SetsCardElement.animationDuration,
-                  child: Text(widget.name, overflow: TextOverflow.ellipsis),
-                ),
-              ),
-              AnimatedOpacity(
-                opacity: widget.isEditingMode ? 1 : 0,
-                duration: SetsCardElement.animationDuration,
-                child: AnimatedSlide(
-                  offset: widget.isEditingMode ? Offset(0, 0) : Offset(0, -0.3),
-                  duration: SetsCardElement.animationDuration,
-                  curve: SetsCardElement.curve,
-                  child: Row(
-                    mainAxisAlignment: .center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: widget.isEditingMode ? widget.onEdit : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: widget.isEditingMode
-                            ? widget.onDelete
-                            : null,
-                      ),
-                    ],
+                  child: AnimatedSlide(
+                    offset: widget.isEditingMode
+                        ? Offset(0, 0)
+                        : Offset(0, -0.3),
+                    duration: SetsCardElement.animationDuration,
+                    curve: SetsCardElement.curve,
+                    child: Row(
+                      mainAxisAlignment: .center,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: widget.isEditingMode
+                              ? widget.onEdit
+                              : null,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: widget.isEditingMode
+                              ? widget.onDelete
+                              : null,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              ],
+            ),
+            secondChild: SizedBox(
+              width: .infinity,
+              child: Text(
+                widget.name,
+                textAlign: .center,
+                overflow: TextOverflow.ellipsis,
+                // style: TextStyle(fontSize: 6),
               ),
-            ],
+            ),
+            crossFadeState: widget.isEditingMode ? .showFirst : .showSecond,
+            duration: Duration(seconds: 1),
           ),
         ),
       ),

@@ -40,7 +40,6 @@ class _SelectScreenState extends State<SelectScreen>
   void initState() {
     super.initState();
     _controller = AnimationController(duration: animationDuration, vsync: this);
-
     _animation = Tween<double>(
       begin: 0.7,
       end: 0.3,
@@ -56,12 +55,9 @@ class _SelectScreenState extends State<SelectScreen>
   }
 
   bool _isInSelectedSet(ExerciseElement exercise) {
-    // Если не в режиме редактирования сета или у упражнения нет id — не может быть в сете
     if (editSetIndex == -1 || exercise.id == null) {
       return false;
     }
-
-    // Проверяем наличие упражнения по id (не по ссылке на объект!)
     return setsList[editSetIndex].exercises.any((e) => e.id == exercise.id);
   }
 
@@ -228,7 +224,7 @@ class _SelectScreenState extends State<SelectScreen>
                           if (value) {
                             db.addExerciseToSet(
                               setsList[editSetIndex].id!,
-                              editingExercise.id!,
+                              editingExercise.id,
                             );
                             setState(() {
                               setsList[editSetIndex].exercises.add(
@@ -313,14 +309,16 @@ class _SelectScreenState extends State<SelectScreen>
                                 labelText: 'Enter exercise name here',
                                 border: const OutlineInputBorder(),
                                 suffixIcon: IconButton(
-                                  onPressed: () {
+                                  onPressed: () async {
                                     final newEx = ExerciseElement(
                                       name: enteringExerciseName,
                                       reps: [],
                                     );
+                                    await db.insertExercise(newEx);
+                                    final load = await db.getAllExercises();
                                     setState(() {
-                                      activeExerciseList.add(newEx);
-                                      db.insertExercise(newEx);
+                                      loadedExerciseList = load;
+                                      activeExerciseList = load;
                                     });
                                   },
                                   icon: const Icon(Icons.add),
