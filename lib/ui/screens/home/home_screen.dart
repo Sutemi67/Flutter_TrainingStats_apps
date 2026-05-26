@@ -12,13 +12,13 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Home screen')),
+      appBar: AppBar(title: const Text('Главная')),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('How much I lifted before'),
-            Placeholder(),
+            const Text('Ранее осиленный вес'),
+            const Placeholder(),
             TrainCard(trainDate: DateTime(2025, 11, 10), weight: 465.2),
             TrainCard(trainDate: DateTime(2025, 10, 10), weight: 465.2),
             TrainCard(trainDate: DateTime(2025, 09, 10), weight: 465.2),
@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.large(
         onPressed: () => _navigateToSelect(context),
-        child: Text('Go train'),
+        child: const Text('Тренировки'),
       ),
     );
   }

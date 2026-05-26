@@ -60,7 +60,7 @@ class ExerciseCardElement extends StatelessWidget {
                   duration: animationDuration,
                   child: AnimatedSlide(
                     offset: isGlobalEditMode
-                        ? const Offset(0, 0)
+                        ? Offset.zero
                         : const Offset(0, -0.3),
                     duration: animationDuration,
                     curve: curve,
@@ -94,7 +94,7 @@ class ExerciseCardElement extends StatelessWidget {
               ),
             ),
             crossFadeState: isGlobalEditMode ? .showFirst : .showSecond,
-            duration: Duration(seconds: 1),
+            duration: const Duration(seconds: 1),
           ),
         ),
       ),

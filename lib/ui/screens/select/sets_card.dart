@@ -58,8 +58,8 @@ class _SetsCardElementState extends State<SetsCardElement> {
                   duration: SetsCardElement.animationDuration,
                   child: AnimatedSlide(
                     offset: widget.isEditingMode
-                        ? Offset(0, 0)
-                        : Offset(0, -0.3),
+                        ? Offset.zero
+                        : const Offset(0, -0.3),
                     duration: SetsCardElement.animationDuration,
                     curve: SetsCardElement.curve,
                     child: Row(
@@ -93,7 +93,7 @@ class _SetsCardElementState extends State<SetsCardElement> {
               ),
             ),
             crossFadeState: widget.isEditingMode ? .showFirst : .showSecond,
-            duration: Duration(seconds: 1),
+            duration: const Duration(seconds: 1),
           ),
         ),
       ),

@@ -89,7 +89,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.exercise.name} details')),
+      appBar: AppBar(title: Text('${widget.exercise.name} - детали')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(18.0),
@@ -103,8 +103,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
               ),
               Card(child: RepsInfo(addRep: addRep)),
               repsArchive.isEmpty
-                  ? Center(
-                      child: const Column(
+                  ? const Center(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
@@ -114,7 +114,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
                           ),
                           SizedBox(height: 16),
                           Text(
-                            'No reps of this exercise yet.',
+                            'Повторений еще не было...',
                             style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
                           SizedBox(height: 8),
@@ -131,25 +131,25 @@ class _DetailsScreenState extends State<DetailsScreen> {
                   : ListView.builder(
                       controller: _scrollController,
                       itemCount: repsArchive.length,
-                      physics: AlwaysScrollableScrollPhysics(),
+                      physics: const AlwaysScrollableScrollPhysics(),
                       reverse: true,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
                         var rep = repsArchive[index];
                         final isToday = _isToday(rep.day);
                         return Card(
-                          margin: EdgeInsets.only(bottom: 8),
+                          margin: const EdgeInsets.only(bottom: 8),
                           color: isToday ? null : exerciseMainColor,
                           child: ListTile(
                             leading: CircleAvatar(child: Text('${rep.reps}')),
                             title: Text('${rep.reps} reps × ${rep.weight} kg'),
                             subtitle: Text(
                               'Объём: ${(rep.weight * rep.reps).toInt()}',
-                              style: TextStyle(color: Colors.grey),
+                              style: const TextStyle(color: Colors.grey),
                             ),
                             trailing: Text(
                               DateFormat('d MMMM', 'ru').format(rep.day),
-                              style: TextStyle(color: Colors.grey),
+                              style: const TextStyle(color: Colors.grey),
                             ),
                           ),
                         );

@@ -44,12 +44,12 @@ class TrainCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
         child: ListTile(
-          leading: CircleAvatar(),
+          leading: const CircleAvatar(),
           title: Text(
             _formatDateRelative(trainDate),
-            style: TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18),
           ),
           subtitle: Text('$weight килограмм'),
         ),

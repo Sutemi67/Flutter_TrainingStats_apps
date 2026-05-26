@@ -162,7 +162,7 @@ class RepsGraph extends StatelessWidget {
           color: setsSelectedColor,
           barWidth: 3,
           isStrokeCapRound: true,
-          dotData: FlDotData(show: false),
+          dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
             gradient: LinearGradient(
@@ -204,7 +204,7 @@ class RepsGraph extends StatelessWidget {
         getTouchedSpotIndicator: (barData, spotIndexes) {
           return spotIndexes.map((index) {
             return TouchedSpotIndicatorData(
-              FlLine(color: Colors.blue, strokeWidth: 2),
+              const FlLine(color: Colors.blue, strokeWidth: 2),
               FlDotData(
                 show: true,
                 getDotPainter: (spot, percent, bar, index) {

@@ -44,7 +44,7 @@ class _RepsInfoState extends State<RepsInfo> {
       mainAxisAlignment: .center,
       children: [
         IconButton(
-          icon: Icon(Icons.add, size: 155),
+          icon: const Icon(Icons.add, size: 155),
           onPressed: () => widget.addRep(_newWeightValue, _newRepsValue),
         ),
         Card(
@@ -65,7 +65,7 @@ class _RepsInfoState extends State<RepsInfo> {
                     setState(() => _newWeightValue -= 0.5);
                   }
                 },
-                child: Text('-', style: TextStyle(fontSize: 35)),
+                child: const Text('-', style: TextStyle(fontSize: 35)),
               ),
               Expanded(
                 child: Slider(
@@ -86,7 +86,7 @@ class _RepsInfoState extends State<RepsInfo> {
                     setState(() => _newWeightValue += 0.5);
                   }
                 },
-                child: Text('+', style: TextStyle(fontSize: 35)),
+                child: const Text('+', style: TextStyle(fontSize: 35)),
               ),
             ],
           ),
@@ -97,7 +97,7 @@ class _RepsInfoState extends State<RepsInfo> {
             crossAxisAlignment: .center,
             children: [
               Padding(
-                padding: EdgeInsets.all(15),
+                padding: const EdgeInsets.all(15),
                 child: SizedBox(width: 97, child: Text('Reps: $_newRepsValue')),
               ),
               TextButton(
@@ -107,7 +107,7 @@ class _RepsInfoState extends State<RepsInfo> {
                     getRepsColor();
                   }
                 },
-                child: Text('-', style: TextStyle(fontSize: 35)),
+                child: const Text('-', style: TextStyle(fontSize: 35)),
               ),
               Expanded(
                 child: Slider(
@@ -132,7 +132,7 @@ class _RepsInfoState extends State<RepsInfo> {
                     getRepsColor();
                   }
                 },
-                child: Text('+', style: TextStyle(fontSize: 35)),
+                child: const Text('+', style: TextStyle(fontSize: 35)),
               ),
             ],
           ),

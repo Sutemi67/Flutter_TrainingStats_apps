@@ -158,7 +158,7 @@ class _SelectScreenState extends State<SelectScreen>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(title: const Text('Select exercise')),
+      appBar: AppBar(title: const Text('Выбор тренировки')),
       body: Row(
         children: [
           NotificationListener<ScrollNotification>(
@@ -170,7 +170,7 @@ class _SelectScreenState extends State<SelectScreen>
             },
             child: Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   border: .symmetric(
                     horizontal: BorderSide(width: 0.5),
                     vertical: BorderSide(width: 1),
@@ -205,7 +205,7 @@ class _SelectScreenState extends State<SelectScreen>
                 },
                 child: Container(
                   width: screenWidth * (1 - _animation.value),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     border: Border.symmetric(horizontal: BorderSide(width: 1)),
                     borderRadius: BorderRadius.all(Radius.circular(22)),
                     color: exerciseMainColor,
@@ -265,7 +265,7 @@ class _SelectScreenState extends State<SelectScreen>
         children: [
           AnimatedSlide(
             curve: Curves.ease,
-            offset: isFABColumnVisible ? Offset(0, 0) : Offset(0, 0.3),
+            offset: isFABColumnVisible ? Offset.zero : const Offset(0, 0.3),
             duration: animationDuration,
             child: AnimatedOpacity(
               curve: Curves.ease,
@@ -279,8 +279,8 @@ class _SelectScreenState extends State<SelectScreen>
                     heroTag: 4,
                     onPressed: _toggleEditingMode,
                     label: isEditingMode
-                        ? Text('Done with editing')
-                        : Text('Enter editing mode'),
+                        ? const Text('Закончить редактирование')
+                        : const Text('Режим редактирования'),
                   ),
                   Row(
                     mainAxisAlignment: .end,
@@ -288,8 +288,8 @@ class _SelectScreenState extends State<SelectScreen>
                       AnimatedSlide(
                         curve: Curves.ease,
                         offset: isExerciseCreating
-                            ? Offset(0, 0)
-                            : Offset(0.5, 0),
+                            ? Offset.zero
+                            : const Offset(0.5, 0),
                         duration: animationDuration,
                         child: AnimatedOpacity(
                           curve: Curves.easeOut,
@@ -306,7 +306,7 @@ class _SelectScreenState extends State<SelectScreen>
                                 }
                               },
                               decoration: InputDecoration(
-                                labelText: 'Enter exercise name here',
+                                labelText: 'Название упражнения',
                                 border: const OutlineInputBorder(),
                                 suffixIcon: IconButton(
                                   onPressed: () async {
@@ -334,8 +334,8 @@ class _SelectScreenState extends State<SelectScreen>
                           _toggleExerciseCreating();
                         },
                         label: isExerciseCreating
-                            ? Text('Okay')
-                            : Text('Add exercise!'),
+                            ? const Text('Ок')
+                            : const Text('Добавить упражнение'),
                       ),
                     ],
                   ),
@@ -344,7 +344,9 @@ class _SelectScreenState extends State<SelectScreen>
                     children: [
                       AnimatedSlide(
                         curve: Curves.ease,
-                        offset: isSetCreating ? Offset(0, 0) : Offset(0.5, 0),
+                        offset: isSetCreating
+                            ? Offset.zero
+                            : const Offset(0.5, 0),
                         duration: animationDuration,
                         child: AnimatedOpacity(
                           curve: Curves.easeOut,
@@ -359,7 +361,7 @@ class _SelectScreenState extends State<SelectScreen>
                                 });
                               },
                               decoration: InputDecoration(
-                                labelText: 'Enter set name here',
+                                labelText: 'Название сета',
                                 border: const OutlineInputBorder(),
                                 suffixIcon: IconButton(
                                   onPressed: () async {
@@ -392,7 +394,9 @@ class _SelectScreenState extends State<SelectScreen>
                         onPressed: () {
                           _toggleSetCreating();
                         },
-                        label: isSetCreating ? Text('Okay') : Text('Add set!'),
+                        label: isSetCreating
+                            ? const Text('Ок')
+                            : const Text('Добавить тренировку'),
                       ),
                     ],
                   ),
@@ -410,7 +414,7 @@ class _SelectScreenState extends State<SelectScreen>
               editSetIndex = -1;
             }),
             icon: const Icon(Icons.edit),
-            label: const Text('Done!'),
+            label: const Text('Закончить'),
             isExtended: isFABColumnVisible,
           ),
         ],
