@@ -10,9 +10,7 @@ import 'package:flutter_training_stats_apps/ui/theme/colors.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
-  // Гарантируем инициализацию биндинга перед асинхронными вызовами
   WidgetsFlutterBinding.ensureInitialized();
-  // Инициализируем данные локали для intl (опционально, но надёжно)
   await initializeDateFormatting('ru', null);
   final db = AppDatabase();
 
