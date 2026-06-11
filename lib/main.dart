@@ -25,7 +25,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(colorSchemeSeed: primaryColor, brightness: .dark),
       routes: {
-        AppRoutesNames.homeRoute: (context) => const HomeScreen(),
+        AppRoutesNames.homeRoute: (context) => HomeScreen(db: db),
         AppRoutesNames.splashRoute: (context) => const SplashScreen(),
         AppRoutesNames.selectRoute: (context) => SelectScreen(db: db),
         AppRoutesNames.detailsRoute: (context) => DetailsScreen(
